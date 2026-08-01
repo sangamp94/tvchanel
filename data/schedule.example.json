@@ -1,1 +1,24 @@
-
+{
+  "channel_name": "MyTV",
+  "channel_logo": "https://raw.githubusercontent.com/yourname/yourrepo/main/data/sample-channel-logo.png",
+  "epoch": "2026-01-01T00:00:00Z",
+  "shows": [
+    {
+      "name": "Pokemon Episode 1",
+      "logo": "https://raw.githubusercontent.com/yourname/yourrepo/main/data/pokemon-logo.png",
+      "video_url": "https://example.com/videos/pokemon-ep1.mp4",
+      "duration": 1380
+    },
+    {
+      "name": "Doraemon Episode 1",
+      "logo": "https://raw.githubusercontent.com/yourname/yourrepo/main/data/doraemon-logo.png",
+      "video_url": "https://example.com/videos/doraemon-ep1.mkv",
+      "duration": 1500
+    },
+    {
+      "name": "News Bulletin",
+      "logo": "https://raw.githubusercontent.com/yourname/yourrepo/main/data/news-logo.png",
+      "video_url": "https://example.com/streams/news-vod.m3u8"
+    }
+  ]
+}
