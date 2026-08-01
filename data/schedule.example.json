@@ -11,14 +11,14 @@
     },
     {
       "name": "Doraemon Episode 1",
-      "logo": "https://raw.githubusercontent.com/yourname/yourrepo/main/data/doraemon-logo.png",
-      "video_url": "https://example.com/videos/doraemon-ep1.mkv",
+      "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_E_Z2Spv17SBA6QFrULRSEzOLKCRydtQl-ISnz4uCP4wmxpYTmFfl6Wk&s=10",
+      "video_url": "https://dn721901.ca.archive.org/0/items/pkmns1e2/videoplayback%20%281%29.mp4",
       "duration": 1500
     },
     {
       "name": "News Bulletin",
-      "logo": "https://raw.githubusercontent.com/yourname/yourrepo/main/data/news-logo.png",
-      "video_url": "https://example.com/streams/news-vod.m3u8"
+      "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_E_Z2Spv17SBA6QFrULRSEzOLKCRydtQl-ISnz4uCP4wmxpYTmFfl6Wk&s=10",
+      "video_url": "https://dn721901.ca.archive.org/0/items/pkmns1e2/videoplayback%20%281%29.mp4"
     }
   ]
 }
