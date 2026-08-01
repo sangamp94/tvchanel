@@ -1,0 +1,7 @@
+node_modules/
+.env
+public/hls/*
+!public/hls/.gitkeep
+cache/*
+!cache/.gitkeep
+npm-debug.log*

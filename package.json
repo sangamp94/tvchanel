@@ -1,0 +1,19 @@
+{
+  "name": "tv-channel-server",
+  "version": "1.0.0",
+  "description": "24/7 fake TV channel server with schedule-based playback, overlays, and HLS output",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "express-basic-auth": "^1.2.1",
+    "dotenv": "^16.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
