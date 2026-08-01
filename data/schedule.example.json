@@ -1,12 +1,12 @@
 {
   "channel_name": "MyTV",
-  "channel_logo": "https://raw.githubusercontent.com/yourname/yourrepo/main/data/sample-channel-logo.png",
+  "channel_logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_E_Z2Spv17SBA6QFrULRSEzOLKCRydtQl-ISnz4uCP4wmxpYTmFfl6Wk&s=10",
   "epoch": "2026-01-01T00:00:00Z",
   "shows": [
     {
       "name": "Pokemon Episode 1",
-      "logo": "https://raw.githubusercontent.com/yourname/yourrepo/main/data/pokemon-logo.png",
-      "video_url": "https://example.com/videos/pokemon-ep1.mp4",
+      "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_E_Z2Spv17SBA6QFrULRSEzOLKCRydtQl-ISnz4uCP4wmxpYTmFfl6Wk&s=10",
+      "video_url": "https://dn721901.ca.archive.org/0/items/pkmns1e2/videoplayback%20%281%29.mp4",
       "duration": 1380
     },
     {
