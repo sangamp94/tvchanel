@@ -240,6 +240,37 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
   filterParts.push(
     `[${nextLabel}]drawtext=fontfile=${FONT_PATH}:text='${escapeDrawtext(nextName)}':fontcolor=white:fontsize=${titleSize}:x=${plateX + Math.round(width * 0.018)}:y=${nextY + Math.round(plateH * 0.48)}:borderw=0[vout]`
   );
+  
+  // Promotional lower-third: shown for 12 seconds every 180 seconds of wall-clock time.
+  // A stable epoch-based window keeps every FFmpeg restart aligned to the same 3-minute cadence.
+  const adPeriod = 180;
+  const adDuration = 12;
+  const adVisible = (Math.floor(Date.now() / 1000) % adPeriod) < adDuration;
+  const adH = Math.round(height * 0.12);
+  const adY = height - adH - Math.round(height * 0.035);
+  const adPad = Math.round(width * 0.025);
+  const adAccentW = Math.max(4, Math.round(width * 0.008));
+  const adBase = "adbase";
+  const adEdge = "adedge";
+  const adAccent = "adaccent";
+  const adTitle = "adtitle";
+  const adSubtitle = "adsubtitle";
+  filterParts.push(
+    `[vout]drawbox=x=0:y=${adY}:w=${width}:h=${adH}:color=0x090B14@0.92:t=fill[ ${adBase}]`.replace("[ ", "[")
+  );
+  filterParts.push(
+    `[${adBase}]drawbox=x=0:y=${adY}:w=${width}:h=2:color=0xFF3158@1:t=fill[${adEdge}]`
+  );
+  filterParts.push(
+    `[${adEdge}]drawbox=x=0:y=${adY}:w=${adAccentW}:h=${adH}:color=0xFF3158@1:t=fill[${adAccent}]`
+  );
+  filterParts.push(
+    `[${adAccent}]drawtext=fontfile=${FONT_PATH}:text='BANDBUDH AUR BUDBAK 2.0':fontcolor=white:fontsize=${Math.max(14, Math.round(height * 0.034))}:x=${adPad}:y=${adY + Math.round(adH * 0.16)}:borderw=0:enable='between(mod(t,180),0,12)'[${adTitle}]`
+  );
+  filterParts.push(
+    `[${adTitle}]drawtext=fontfile=${FONT_PATH}:text='COMING SOON ON MAHA CARTOON TV':fontcolor=0xFF6B8B:fontsize=${Math.max(10, Math.round(height * 0.026))}:x=${adPad}:y=${adY + Math.round(adH * 0.58)}:borderw=0:enable='between(mod(t,180),0,12)'[vout]`
+  );
+
 
   return { filterComplex: filterParts.join(";"), extraInputs: inputs };
 }
