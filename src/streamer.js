@@ -177,34 +177,54 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     inputIndex++;
   }
 
-  // Compact rounded-style NOW banner. The plate is built from short horizontal
-  // bands to soften the corners without requiring any raster image asset.
+  // Premium glossy-metal NOW badge: dark chrome plate, crimson outer rim,
+  // silver bevel and a narrow specular highlight. Built from FFmpeg primitives
+  // so it stays lightweight and does not need extra image assets.
   const marginX = Math.round(width * 0.025);
   const marginY = Math.round(height * 0.045);
-  const plateW = Math.round(width * 0.255);
-  const plateH = Math.round(height * 0.072);
-  const radius = Math.max(3, Math.round(plateH * 0.22));
+  const plateW = Math.round(width * 0.285);
+  const plateH = Math.round(height * 0.082);
+  const radius = Math.max(4, Math.round(plateH * 0.24));
   const plateX = marginX;
-  const nowFont = Math.max(12, Math.round(height * 0.027));
-  let roundedInput = lastVideoLabel;
-  const bandCount = 5;
+  const nowFont = Math.max(13, Math.round(height * 0.030));
+  let plateInput = lastVideoLabel;
+
+  // Approximate rounded corners with stepped horizontal slices.
+  const bandCount = 9;
   for (let i = 0; i < bandCount; i++) {
-    const inset = Math.round(radius * (1 - Math.abs((i - (bandCount - 1) / 2) / ((bandCount - 1) / 2)));
+    const center = (bandCount - 1) / 2;
+    const inset = Math.round(radius * (1 - Math.abs((i - center) / center)));
     const y = marginY + Math.round(i * plateH / bandCount);
     const h = Math.max(1, Math.ceil(plateH / bandCount));
-    const out = `nowround${i}`;
+    const out = `nowmetal${i}`;
     filterParts.push(
-      `[${roundedInput}]drawbox=x=${plateX + inset}:y=${y}:w=${plateW - inset * 2}:h=${h}:color=0x080B12@0.82:t=fill[${out}]`
+      `[${plateInput}]drawbox=x=${plateX + inset}:y=${y}:w=${plateW - inset * 2}:h=${h}:color=0x101722@0.94:t=fill[${out}]`
     );
-    roundedInput = out;
+    plateInput = out;
   }
-  const nowAccent = "nowaccent";
+
+  const rim = "nowrim";
+  const bevel = "nowbevel";
+  const gloss = "nowgloss";
+  const accent = "nowaccent";
+  const textShadow = "nowshadow";
   const nowText = "nowtext";
   filterParts.push(
-    `[${roundedInput}]drawbox=x=${plateX + 2}:y=${marginY + radius}:w=3:h=${plateH - radius * 2}:color=0xFF3158@1:t=fill[${nowAccent}]`
+    `[${plateInput}]drawbox=x=${plateX + 1}:y=${marginY + radius}:w=${plateW - 2}:h=${plateH - radius * 2}:color=0xFF3158@0.95:t=2[${rim}]`
   );
   filterParts.push(
-    `[${nowAccent}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=white:fontsize=${nowFont}:x=${plateX + Math.round(width * 0.014)}:y=${marginY + Math.round(plateH * 0.24)}:borderw=0[vout]`
+    `[${rim}]drawbox=x=${plateX + 4}:y=${marginY + radius + 2}:w=${plateW - 8}:h=2:color=0xF5F8FF@0.92:t=fill[${bevel}]`
+  );
+  filterParts.push(
+    `[${bevel}]drawbox=x=${plateX + 5}:y=${marginY + radius + 4}:w=${plateW - 10}:h=${Math.max(2, Math.round(plateH * 0.20))}:color=0xFFFFFF@0.12:t=fill[${gloss}]`
+  );
+  filterParts.push(
+    `[${gloss}]drawbox=x=${plateX + 5}:y=${marginY + radius + 7}:w=4:h=${plateH - radius * 2 - 10}:color=0xFF3158@1:t=fill[${accent}]`
+  );
+  const textX = plateX + Math.round(width * 0.020);
+  const textY = marginY + Math.round(plateH * 0.27);
+  filterParts.push(
+    `[${accent}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=0xFFFFFF:fontsize=${nowFont}:borderw=2:bordercolor=0x05070B@0.95:shadowcolor=0x000000@0.9:shadowx=1:shadowy=2:x=${textX}:y=${textY}[vout]`
   );
 
   // Bottom promo strip is genuinely intermittent: the background and both text
