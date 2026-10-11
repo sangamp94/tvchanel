@@ -225,10 +225,25 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
   filterParts.push(
     `[${shine}]drawbox=x=${plateX + 5}:y=${marginY + radius + 5}:w=4:h=${plateH - radius * 2 - 10}:color=0x20E7FF@1:t=fill[${rail}]`
   );
+
+  // Animated specular sweep: a slim cyan-white reflection glides across the
+  // glass panel repeatedly. A second moving top glint gives it an esports HUD feel.
+  const sweep = "hudsweep";
+  const glint = "hudglint";
+  const sweepWidth = Math.max(8, Math.round(plateW * 0.045));
+  const sweepX = `${plateX + 8}+mod(t*${Math.max(35, Math.round(width * 0.42))},${Math.max(1, plateW - 20)})`;
+  filterParts.push(
+    `[${rail}]drawbox=x='${sweepX}':y=${marginY + radius + 4}:w=${sweepWidth}:h=${plateH - radius * 2 - 8}:color=0xA5F7FF@0.22:t=fill[${sweep}]`
+  );
+  const glintX = `${plateX}+mod(t*${Math.max(50, Math.round(width * 0.55))},${Math.max(1, plateW - 12)})`;
+  filterParts.push(
+    `[${sweep}]drawbox=x='${glintX}':y=${marginY + radius + 2}:w=10:h=2:color=0xFFFFFF@0.95:t=fill[${glint}]`
+  );
+
   const textX = plateX + Math.round(width * 0.020);
   const textY = marginY + Math.round(plateH * 0.27);
   filterParts.push(
-    `[${rail}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=0xF5FCFF:fontsize=${nowFont}:borderw=1:bordercolor=0x04101D@0.95:shadowcolor=0x20E7FF@0.65:shadowx=0:shadowy=0:x=${textX}:y=${textY}[vout]`
+    `[${glint}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=0xF5FCFF:fontsize=${nowFont}:borderw=1:bordercolor=0x04101D@0.95:shadowcolor=0x20E7FF@0.65:shadowx=0:shadowy=0:x=${textX}:y=${textY}[vout]`
   );
 
   // Bottom promo strip is genuinely intermittent: the background and both text
