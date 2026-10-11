@@ -119,24 +119,45 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     inputIndex++;
   }
 
-  // Draw the Streamify TV mark directly in FFmpeg filters (no logo image file).
-  // A neon gradient isn't available in drawbox, so use layered crimson/magenta
-  // strokes plus a play glyph and wordmark as a lightweight code-rendered overlay.
+  // Draw a compact premium Streamify TV badge directly in FFmpeg.
+  // This remains vector/text based: no raster logo asset is loaded into the stream.
   if (channelLogoIsStreamify) {
-    // Keep the channel brand at the top-right; show logo and show title use top-left.
-    const boxW = Math.round(width * 0.16);
-    const boxH = Math.round(height * 0.13);
-    const x = width - boxW - Math.round(width * 0.025);
-    const y = Math.round(height * 0.045);
-    const nextLabel = "brandbg";
+    const badgeW = Math.round(width * 0.245);
+    const badgeH = Math.round(height * 0.105);
+    const badgeX = width - badgeW - Math.round(width * 0.025);
+    const badgeY = Math.round(height * 0.035);
+    const pad = Math.round(height * 0.012);
+    const iconSize = Math.round(badgeH * 0.62);
+    const iconX = badgeX + pad;
+    const iconY = badgeY + Math.round((badgeH - iconSize) / 2);
+    const base = "brandbase";
+    const border = "brandborder";
+    const iconBox = "brandiconbox";
+    const playText = "brandplay";
+    const word = "brandword";
+    const tv = "brandtv";
+
+    // Dark translucent plate with a magenta edge and a second crimson accent.
     filterParts.push(
-      `[${lastVideoLabel}]drawbox=x=${x}:y=${y}:w=${boxW}:h=${boxH}:color=0xFF168B@0.95:t=5[${nextLabel}]`
+      `[${lastVideoLabel}]drawbox=x=${badgeX}:y=${badgeY}:w=${badgeW}:h=${badgeH}:color=0x08030B@0.82:t=fill[${base}]`
     );
-    const textLabel = "brandtext";
     filterParts.push(
-      `[${nextLabel}]drawtext=fontfile=${FONT_PATH}:text='▶ Streamify TV':fontcolor=0xFF5ACB:fontsize=${Math.round(height * 0.045)}:borderw=2:bordercolor=0xFF183C:x=${x + 8}:y=${y + Math.round(boxH * 0.34)}[${textLabel}]`
+      `[${base}]drawbox=x=${badgeX}:y=${badgeY}:w=${badgeW}:h=${badgeH}:color=0xFF2ABF@0.95:t=2[${border}]`
     );
-    lastVideoLabel = textLabel;
+    filterParts.push(
+      `[${border}]drawbox=x=${iconX}:y=${iconY}:w=${iconSize}:h=${iconSize}:color=0xFF244D@0.95:t=2[${iconBox}]`
+    );
+    filterParts.push(
+      `[${iconBox}]drawtext=fontfile=${FONT_PATH}:text='▶':fontcolor=0xFF4ACF:fontsize=${Math.round(iconSize * 0.72)}:x=${iconX + Math.round(iconSize * 0.12)}:y=${iconY + Math.round(iconSize * 0.08)}[${playText}]`
+    );
+    const wordX = iconX + iconSize + pad;
+    filterParts.push(
+      `[${playText}]drawtext=fontfile=${FONT_PATH}:text='Streamify':fontcolor=white:fontsize=${Math.round(badgeH * 0.40)}:borderw=1:bordercolor=0x5B123D:x=${wordX}:y=${badgeY + Math.round(badgeH * 0.12)}[${word}]`
+    );
+    filterParts.push(
+      `[${word}]drawtext=fontfile=${FONT_PATH}:text='TV':fontcolor=0xFF334F:fontsize=${Math.round(badgeH * 0.30)}:borderw=1:bordercolor=0x5B123D:x=${wordX}:y=${badgeY + Math.round(badgeH * 0.56)}[${tv}]`
+    );
+    lastVideoLabel = tv;
   }
 
   const showLogoPath = await logoCache.getLocalPath(showLogoUrl);
