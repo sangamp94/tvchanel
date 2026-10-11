@@ -123,10 +123,11 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
   // A neon gradient isn't available in drawbox, so use layered crimson/magenta
   // strokes plus a play glyph and wordmark as a lightweight code-rendered overlay.
   if (channelLogoIsStreamify) {
-    const x = Math.round(width * 0.025);
-    const y = Math.round(height * 0.045);
+    // Keep the channel brand at the top-right; show logo and show title use top-left.
     const boxW = Math.round(width * 0.16);
     const boxH = Math.round(height * 0.13);
+    const x = width - boxW - Math.round(width * 0.025);
+    const y = Math.round(height * 0.045);
     const nextLabel = "brandbg";
     filterParts.push(
       `[${lastVideoLabel}]drawbox=x=${x}:y=${y}:w=${boxW}:h=${boxH}:color=0xFF168B@0.95:t=5[${nextLabel}]`
