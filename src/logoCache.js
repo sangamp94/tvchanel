@@ -29,9 +29,15 @@ async function getLocalPath(url) {
   }
 
   try {
-    const res = await fetch(url);
+    const parsed = new URL(url);
+    if (!["https:", "http:"].includes(parsed.protocol)) throw new Error("Only HTTP(S) logo URLs are allowed");
+    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const maxBytes = 5 * 1024 * 1024;
+    const declaredSize = Number(res.headers.get("content-length") || 0);
+    if (declaredSize > maxBytes) throw new Error("Logo exceeds 5 MB limit");
     const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length === 0 || buf.length > maxBytes) throw new Error("Logo is empty or exceeds 5 MB limit");
     fs.writeFileSync(filePath, buf);
     return filePath;
   } catch (e) {
