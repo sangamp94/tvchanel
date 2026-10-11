@@ -177,18 +177,25 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     inputIndex++;
   }
 
-  // Futuristic esports glass HUD: translucent smoked-glass plate with layered
-  // cyan/violet glow edges and a bright status rail. Keep the video visible.
+  // Single esports NOW HUD. First mask the old green/white NOW label visible
+  // in the supplied source picture, then draw one clean glass banner above it.
   const marginX = Math.round(width * 0.025);
   const marginY = Math.round(height * 0.045);
-  const plateW = Math.round(width * 0.285);
-  const plateH = Math.round(height * 0.080);
-  const radius = Math.max(4, Math.round(plateH * 0.24));
+  const plateW = Math.round(width * 0.305);
+  const plateH = Math.round(height * 0.085);
+  const radius = Math.max(4, Math.round(plateH * 0.20));
   const plateX = marginX;
   const nowFont = Math.max(13, Math.round(height * 0.030));
-  let glassInput = lastVideoLabel;
 
-  // Layered translucent horizontal slices simulate a soft rounded glass panel.
+  // Mask only the small top-left legacy-title area so it cannot show through
+  // beneath the new banner; keep the rest of the cartoon unobstructed.
+  const legacyMask = "hudmask";
+  filterParts.push(
+    `[${lastVideoLabel}]drawbox=x=${plateX - 2}:y=${marginY - 2}:w=${plateW + 8}:h=${Math.round(plateH * 1.68)}:color=0x050B16@0.96:t=fill[${legacyMask}]`
+  );
+
+  // Rounded glass-like plate, approximated with stepped horizontal slices.
+  let glassInput = legacyMask;
   const bandCount = 9;
   for (let i = 0; i < bandCount; i++) {
     const center = (bandCount - 1) / 2;
@@ -197,43 +204,37 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     const h = Math.max(1, Math.ceil(plateH / bandCount));
     const out = `hudglass${i}`;
     filterParts.push(
-      `[${glassInput}]drawbox=x=${plateX + inset}:y=${y}:w=${plateW - inset * 2}:h=${h}:color=0x07111F@0.66:t=fill[${out}]`
+      `[${glassInput}]drawbox=x=${plateX + inset}:y=${y}:w=${plateW - inset * 2}:h=${h}:color=0x07111F@0.84:t=fill[${out}]`
     );
     glassInput = out;
   }
 
-  // Neon halo layers: violet outer bloom, cyan inner bloom, then crisp glass rim.
-  const glowViolet = "hudglowv";
-  const glowCyan = "hudglowc";
+  // Crisp cyan and violet HUD rails.
+  const violet = "hudviolet";
+  const cyan = "hudcyan";
   const rim = "hudrim";
   const shine = "hudshine";
   const rail = "hudrail";
-  const status = "hudstatus";
-  const label = "hudlabel";
-  filterParts.push(
-    `[${glassInput}]drawbox=x=${plateX - 2}:y=${marginY + radius - 1}:w=${plateW + 4}:h=${plateH - radius * 2 + 2}:color=0x9B4DFF@0.24:t=4[${glowViolet}]`
-  );
-  filterParts.push(
-    `[${glowViolet}]drawbox=x=${plateX}:y=${marginY + radius}:w=${plateW}:h=${plateH - radius * 2}:color=0x20E7FF@0.34:t=2[${glowCyan}]`
-  );
-  filterParts.push(
-    `[${glowCyan}]drawbox=x=${plateX + 2}:y=${marginY + radius + 2}:w=${plateW - 4}:h=${plateH - radius * 2 - 4}:color=0xB7F8FF@0.76:t=1[${rim}]`
-  );
-  filterParts.push(
-    `[${rim}]drawbox=x=${plateX + 8}:y=${marginY + radius + 3}:w=${plateW - 16}:h=2:color=0xFFFFFF@0.42:t=fill[${shine}]`
-  );
-  filterParts.push(
-    `[${shine}]drawbox=x=${plateX + 5}:y=${marginY + radius + 5}:w=4:h=${plateH - radius * 2 - 10}:color=0x20E7FF@1:t=fill[${rail}]`
-  );
-
-  // Animated specular sweep: a slim cyan-white reflection glides across the
-  // glass panel repeatedly. A second moving top glint gives it an esports HUD feel.
   const sweep = "hudsweep";
   const glint = "hudglint";
+  filterParts.push(
+    `[${glassInput}]drawbox=x=${plateX - 1}:y=${marginY + radius - 1}:w=${plateW + 2}:h=${plateH - radius * 2 + 2}:color=0x9B4DFF@0.72:t=3[${violet}]`
+  );
+  filterParts.push(
+    `[${violet}]drawbox=x=${plateX}:y=${marginY + radius}:w=${plateW}:h=${plateH - radius * 2}:color=0x20E7FF@0.95:t=2[${cyan}]`
+  );
+  filterParts.push(
+    `[${cyan}]drawbox=x=${plateX + 4}:y=${marginY + radius + 2}:w=${plateW - 8}:h=2:color=0xE8FCFF@0.95:t=fill[${rim}]`
+  );
+  filterParts.push(
+    `[${rim}]drawbox=x=${plateX + 5}:y=${marginY + radius + 5}:w=4:h=${plateH - radius * 2 - 10}:color=0x20E7FF@1:t=fill[${shine}]`
+  );
+
+  // Moving specular highlight.
   const sweepWidth = Math.max(8, Math.round(plateW * 0.045));
   const sweepX = `${plateX + 8}+mod(t*${Math.max(35, Math.round(width * 0.42))},${Math.max(1, plateW - 20)})`;
   filterParts.push(
-    `[${rail}]drawbox=x='${sweepX}':y=${marginY + radius + 4}:w=${sweepWidth}:h=${plateH - radius * 2 - 8}:color=0xA5F7FF@0.22:t=fill[${sweep}]`
+    `[${shine}]drawbox=x='${sweepX}':y=${marginY + radius + 4}:w=${sweepWidth}:h=${plateH - radius * 2 - 8}:color=0xA5F7FF@0.25:t=fill[${sweep}]`
   );
   const glintX = `${plateX}+mod(t*${Math.max(50, Math.round(width * 0.55))},${Math.max(1, plateW - 12)})`;
   filterParts.push(
