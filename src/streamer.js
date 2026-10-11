@@ -182,9 +182,9 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
   const marginX = Math.round(width * 0.025);
   const marginY = Math.round(height * 0.045);
   const plateW = Math.round(width * 0.285);
-  const plateH = Math.round(height * 0.070);
+  const plateH = Math.round(height * 0.052);
   const plateX = marginX;
-  const nowFont = Math.max(13, Math.round(height * 0.030));
+  const nowFont = Math.max(12, Math.round(height * 0.024));
   const base = "nowbase";
   const edge = "nowedge";
   const accent = "nowaccent";
@@ -199,7 +199,7 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     `[${edge}]drawbox=x=${plateX}:y=${marginY}:w=4:h=${plateH}:color=0xE52435@1:t=fill[${accent}]`
   );
   filterParts.push(
-    `[${accent}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=white:fontsize=${nowFont}:borderw=1:bordercolor=0x111111@0.85:x=${plateX + Math.round(width * 0.014)}:y=${marginY + Math.round(plateH * 0.22)}[vout]`
+    `[${accent}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=white:fontsize=${nowFont}:borderw=1:bordercolor=0x111111@0.85:x=${plateX + Math.round(width * 0.014)}:y=${marginY + Math.round(plateH * 0.18)}[vout]`
   );
 
   // Bottom promo strip is genuinely intermittent: the background and both text
