@@ -14,6 +14,12 @@ function ffprobeDuration(videoUrl) {
       "format=duration",
       "-of",
       "default=noprint_wrappers=1:nokey=1",
+      // Archive.org occasionally returns transient 5xx responses; let FFmpeg retry.
+      "-reconnect", "1",
+      "-reconnect_on_network_error", "1",
+      "-reconnect_on_http_error", "5xx,429",
+      "-reconnect_delay_max", "3",
+      "-reconnect_max_retries", "3",
       videoUrl,
     ];
     const proc = spawn("ffprobe", args, { stdio: ["ignore", "pipe", "pipe"] });
@@ -63,7 +69,23 @@ async function resolveDuration(show) {
   if (cached && Number.isFinite(Number(cached)) && Number(cached) > 0) return Number(cached);
 
   console.log(`[schedule] Probing duration for "${show.name}"...`);
-  const probed = await ffprobeDuration(show.video_url);
+  let probed;
+  let lastError;
+  // Retry transient Archive.org/CDN failures instead of immediately dropping an episode.
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      probed = await ffprobeDuration(show.video_url);
+      break;
+    } catch (e) {
+      lastError = e;
+      if (attempt < 3) {
+        const waitMs = attempt * 2000;
+        console.warn(`[schedule] Probe attempt ${attempt}/3 failed for "${show.name}"; retrying in ${waitMs / 1000}s: ${e.message}`);
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+      }
+    }
+  }
+  if (!Number.isFinite(probed) || probed <= 0) throw lastError || new Error("Unable to resolve duration");
   const rounded = Math.round(probed);
   // Duration probing should still work when the optional cache DB is unavailable.
   await db.cacheDuration(show.video_url, rounded).catch((e) => console.warn("[schedule] Duration cache unavailable:", e.message));
