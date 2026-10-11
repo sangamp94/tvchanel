@@ -84,12 +84,10 @@ async function fetchRawJson(url) {
 }
 
 async function refresh() {
-  const sourceUrl = process.env.SCHEDULE_SOURCE_URL;
-  if (!sourceUrl) {
-    throw new Error(
-      "SCHEDULE_SOURCE_URL is not set. Point it at a JSON file (see data/schedule.example.json)."
-    );
-  }
+  // Use the repository schedule by default so a missing Render env var does not leave the channel empty.
+  // Set SCHEDULE_SOURCE_URL in Render to override this default when needed.
+  const sourceUrl = process.env.SCHEDULE_SOURCE_URL ||
+    "https://raw.githubusercontent.com/sangamp94/tvchanel/main/schedule.json";
 
   const raw = await fetchRawJson(sourceUrl);
 
