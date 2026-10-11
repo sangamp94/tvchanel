@@ -4,9 +4,9 @@
   "epoch": "2026-10-11T12:30:00Z",
   "shows": [
     {
-      "name": "Keymon Ache",
+      "name": "Live Stream",
       "logo": "",
-      "video_url": "https://nei5-a0eace4761b8.herokuapp.com/stream/265163?hash=181ce7&d=true",
+      "video_url": "https://002.cdnplayer.eu/live/csstream1/chunklist.m3u8",
       "duration": 7200
     }
   ]
