@@ -1,24 +1,19 @@
 {
-  "channel_name": "MyTV",
-  "channel_logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_E_Z2Spv17SBA6QFrULRSEzOLKCRydtQl-ISnz4uCP4wmxpYTmFfl6Wk&s=10",
+  "channel_name": "My Virtual TV",
+  "channel_logo": "",
   "epoch": "2026-01-01T00:00:00Z",
   "shows": [
     {
-      "name": "Pokemon Episode 1",
-      "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_E_Z2Spv17SBA6QFrULRSEzOLKCRydtQl-ISnz4uCP4wmxpYTmFfl6Wk&s=10",
-      "video_url": "https://dn721901.ca.archive.org/0/items/pkmns1e2/videoplayback%20%281%29.mp4",
-      "duration": 1380
+      "name": "Authorized Programme 1",
+      "logo": "",
+      "video_url": "https://example.com/replace-with-authorized-video-1.mp4",
+      "duration": 1800
     },
     {
-      "name": "Doraemon Episode 1",
-      "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_E_Z2Spv17SBA6QFrULRSEzOLKCRydtQl-ISnz4uCP4wmxpYTmFfl6Wk&s=10",
-      "video_url": "https://dn721901.ca.archive.org/0/items/pkmns1e2/videoplayback%20%281%29.mp4",
-      "duration": 1500
-    },
-    {
-      "name": "News Bulletin",
-      "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_E_Z2Spv17SBA6QFrULRSEzOLKCRydtQl-ISnz4uCP4wmxpYTmFfl6Wk&s=10",
-      "video_url": "https://dn721901.ca.archive.org/0/items/pkmns1e2/videoplayback%20%281%29.mp4"
+      "name": "Authorized Programme 2",
+      "logo": "",
+      "video_url": "https://example.com/replace-with-authorized-video-2.mp4",
+      "duration": 1800
     }
   ]
 }
