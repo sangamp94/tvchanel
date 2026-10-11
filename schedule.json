@@ -1,18 +1,12 @@
 {
   "channel_name": "Sangam TV",
   "channel_logo": "https://raw.githubusercontent.com/sangamp94/tvchanel/main/public/brand/image.png",
-  "epoch": "2026-10-11T11:04:00Z",
+  "epoch": "2026-10-11T12:30:00Z",
   "shows": [
     {
-      "name": "Perman",
+      "name": "Keymon Ache",
       "logo": "",
-      "video_url": "https://nei5-a0eace4761b8.herokuapp.com/stream/264709?hash=023464&d=true",
-      "duration": 5760
-    },
-    {
-      "name": "Pokemon X Y Z",
-      "logo": "",
-      "video_url": "https://nei5-a0eace4761b8.herokuapp.com/stream/264992?hash=927608&d=true",
+      "video_url": "https://nei5-a0eace4761b8.herokuapp.com/stream/265163?hash=181ce7&d=true",
       "duration": 7200
     }
   ]
