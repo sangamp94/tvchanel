@@ -409,10 +409,10 @@
       "video_url": "https://dn710608.ca.archive.org/0/items/pokemonseason1hindi/Pokemon_01_82.mp4"
     }
   ],
-  "daily_start_time": "09:00",
   "pre_show": {
     "name": "Mushak Gun Gun",
     "logo": "",
     "video_url": "https://nei5-a0eace4761b8.herokuapp.com/stream/267196?hash=d3554c&d=true"
-  }
+  },
+  "start_at": "2026-10-12T03:30:00Z"
 }
