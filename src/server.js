@@ -12,7 +12,6 @@ const adminRoutes = require("./routes/admin");
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Never expose the admin dashboard with a predictable production password.
 if (
   process.env.NODE_ENV === "production" &&
   (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === "admin")
@@ -22,10 +21,8 @@ if (
 
 app.use(express.json());
 
-// ---- Public: health check for Render ----
 app.get("/healthz", (req, res) => res.send("ok"));
 
-// ---- Public: code-drawn Streamify TV brand assets (SVG, not a raster image) ----
 app.use("/brand", express.static(path.join(__dirname, "..", "public", "brand"), {
   setHeaders: (res) => {
     res.setHeader("Cache-Control", "public, max-age=3600");
@@ -33,60 +30,53 @@ app.use("/brand", express.static(path.join(__dirname, "..", "public", "brand"), 
   },
 }));
 
-// ---- Public: HLS output (this is what VLC / players connect to) ----
-app.use(
-  "/live",
-  express.static(path.join(__dirname, "..", "public", "hls"), {
-    setHeaders: (res, filePath) => {
-      if (filePath.endsWith(".m3u8")) {
-        res.setHeader("Cache-Control", "no-cache");
-        res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
-      } else if (filePath.endsWith(".ts")) {
-        res.setHeader("Cache-Control", "no-cache");
-      }
-      // Allow players/browsers on other origins to fetch the stream.
-      res.setHeader("Access-Control-Allow-Origin", "*");
-    },
-  })
-);
+app.use("/live", express.static(path.join(__dirname, "..", "public", "hls"), {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith(".m3u8")) {
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+    } else if (filePath.endsWith(".ts")) {
+      res.setHeader("Cache-Control", "no-cache");
+    }
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  },
+}));
 
-// ---- Public: read-only JSON API (now playing, config, status) ----
 app.use("/api", apiRoutes);
 
-// ---- Protected: admin API + dashboard UI ----
 const adminAuth = basicAuth({
   users: { [process.env.ADMIN_USER || "admin"]: process.env.ADMIN_PASSWORD || "admin" },
   challenge: true,
   realm: "tv-channel-admin",
 });
-
 app.use("/api/admin", adminAuth, adminRoutes);
 app.use("/dashboard", adminAuth, express.static(path.join(__dirname, "..", "public", "dashboard")));
 
 app.get("/", (req, res) => {
   res.type("text").send(
     "TV Channel Server is running.\n" +
-      "- Live stream (open in VLC): /live/stream.m3u8\n" +
-      "- Dashboard: /dashboard\n" +
-      "- Now playing (JSON): /api/nowplaying\n"
+    "- Live stream (open in VLC): /live/stream.m3u8\n" +
+    "- Dashboard: /dashboard\n" +
+    "- Now playing (JSON): /api/nowplaying\n"
   );
 });
 
 async function main() {
-  await db.initSchema().catch((e) =>
-    console.error("[server] DB schema init failed (check DATABASE_URL):", e.message)
-  );
-
-  // startAutoRefresh performs the initial fetch before scheduling future refreshes.
-  // This avoids fetching/probing the entire schedule twice during startup.
-  await scheduleSource.startAutoRefresh();
-
-  streamer.start({ intervalSeconds: 5 });
-
+  // Open the HTTP server and start the streamer first so the pre-show can go live
+  // while the schedule loader probes remote episode durations in the background.
   app.listen(PORT, () => {
     console.log(`[server] Listening on port ${PORT}`);
     console.log(`[server] Live stream will be at http://localhost:${PORT}/live/stream.m3u8`);
   });
+  streamer.start({ intervalSeconds: 5 });
+
+  await db.initSchema().catch((e) =>
+    console.error("[server] DB schema init failed (check DATABASE_URL):", e.message)
+  );
+
+  scheduleSource.startAutoRefresh().catch((e) =>
+    console.error("[server] Schedule startup failed:", e.message)
+  );
 }
 
 main().catch((e) => {
