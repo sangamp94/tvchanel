@@ -54,8 +54,13 @@ async function resolveDuration(show) {
   if (show.duration && Number(show.duration) > 0) {
     return Number(show.duration);
   }
-  const cached = await db.getCachedDuration(show.video_url);
-  if (cached) return cached;
+  let cached = null;
+  try {
+    cached = await db.getCachedDuration(show.video_url);
+  } catch (e) {
+    console.warn("[schedule] Duration cache unavailable; probing source:", e.message);
+  }
+  if (cached && Number.isFinite(Number(cached)) && Number(cached) > 0) return Number(cached);
 
   console.log(`[schedule] Probing duration for "${show.name}"...`);
   const probed = await ffprobeDuration(show.video_url);
@@ -130,7 +135,12 @@ async function refresh() {
   const epochDate = Number.isFinite(parsedEpoch.getTime()) ? parsedEpoch : new Date(0);
 
   // Dashboard-set logo overrides the JSON's channel_logo, if present.
-  const override = await db.getChannelOverride();
+  let override = null;
+  try {
+    override = await db.getChannelOverride();
+  } catch (e) {
+    console.warn("[schedule] Channel override DB unavailable; using schedule JSON:", e.message);
+  }
 
   cachedConfig = {
     channel_name: (override && override.channel_name) || raw.channel_name || "My Channel",
@@ -182,11 +192,18 @@ async function startAutoRefresh() {
     lastFetchError = e.message;
     console.error("[schedule] Initial load failed:", e.message);
   }
+  let refreshInProgress = false;
   setInterval(() => {
-    refresh().catch((e) => {
-      lastFetchError = e.message;
-      console.error("[schedule] Refresh failed:", e.message);
-    });
+    if (refreshInProgress) return;
+    refreshInProgress = true;
+    refresh()
+      .catch((e) => {
+        lastFetchError = e.message;
+        console.error("[schedule] Refresh failed:", e.message);
+      })
+      .finally(() => {
+        refreshInProgress = false;
+      });
   }, seconds * 1000);
 }
 
