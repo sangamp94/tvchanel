@@ -12,6 +12,14 @@ const adminRoutes = require("./routes/admin");
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// Never expose the admin dashboard with a predictable production password.
+if (
+  process.env.NODE_ENV === "production" &&
+  (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === "admin")
+) {
+  throw new Error("Set a strong ADMIN_PASSWORD environment variable before production deployment.");
+}
+
 app.use(express.json());
 
 // ---- Public: health check for Render ----
