@@ -16,12 +16,16 @@ services:
       - key: SCHEDULE_REFRESH_SECONDS
         value: "60"
       - key: STREAM_WIDTH
-        value: "1280"
+        value: "854"
       - key: STREAM_HEIGHT
-        value: "720"
+        value: "480"
+      - key: STREAM_FPS
+        value: "25"
+      - key: STREAM_THREADS
+        value: "2"
       - key: STREAM_PRESET
-        value: veryfast
+        value: ultrafast
       - key: VIDEO_BITRATE
-        value: 1500k
+        value: 800k
       - key: AUDIO_BITRATE
-        value: 128k
+        value: 96k
