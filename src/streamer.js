@@ -167,6 +167,14 @@ async function startShow(nowPlaying) {
     height,
   });
 
+  // Logo fetching/filter preparation can take long enough to cross a show boundary.
+  // Do not launch FFmpeg at the very end of a show, where -ss/-t can yield no packets.
+  const latest = scheduler.getNowPlaying();
+  if (!latest || latest.index !== nowPlaying.index || latest.remainingSeconds < 2) {
+    setImmediate(() => tick().catch((e) => console.error("[streamer] tick error:", e.message)));
+    return;
+  }
+
   const onDisk = highestSegmentNumberOnDisk();
   if (onDisk >= 0) nextSegmentNumber = onDisk + 1;
 
@@ -221,8 +229,10 @@ async function startShow(nowPlaying) {
     "8",
     "-start_number",
     String(nextSegmentNumber),
+    // Keep deletion under cleanupOrphanSegments() rather than letting FFmpeg
+    // race the cleanup sweep or remove segments still requested by HLS clients.
     "-hls_flags",
-    "append_list+delete_segments+discont_start+omit_endlist",
+    "append_list+discont_start+omit_endlist",
     "-hls_segment_filename",
     path.join(HLS_DIR, "seg_%d.ts"),
     path.join(HLS_DIR, "stream.m3u8"),
@@ -259,9 +269,30 @@ async function startShow(nowPlaying) {
 }
 
 function stopCurrentShow() {
-  if (currentProcess) {
-    currentProcess.kill("SIGTERM");
-  }
+  const proc = currentProcess;
+  if (!proc) return Promise.resolve();
+
+  // Wait for FFmpeg to release the playlist/segment files before starting
+  // another process. A fixed short sleep allowed overlapping writers on Render.
+  return new Promise((resolve) => {
+    let settled = false;
+    let killTimer;
+    let fallbackTimer;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(killTimer);
+      clearTimeout(fallbackTimer);
+      resolve();
+    };
+
+    proc.once("close", finish);
+    proc.kill("SIGTERM");
+    killTimer = setTimeout(() => {
+      if (proc.exitCode === null && proc.signalCode === null) proc.kill("SIGKILL");
+    }, 1500);
+    fallbackTimer = setTimeout(finish, 3000);
+  });
 }
 
 async function tick() {
@@ -276,9 +307,7 @@ async function tick() {
     restarting = true;
     try {
       if (isRunning && needsSwitch) {
-        stopCurrentShow();
-        // give ffmpeg a brief moment to release the output files before respawning
-        await new Promise((r) => setTimeout(r, 300));
+        await stopCurrentShow();
       }
       await startShow(nowPlaying);
     } catch (e) {
