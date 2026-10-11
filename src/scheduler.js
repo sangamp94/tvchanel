@@ -20,6 +20,20 @@ function getNowPlaying() {
     };
   }
 
+  // While remote episode durations are still being probed, do not let the
+  // provisional 1-second placeholder duration produce an almost-zero show.
+  // Start Episode 1 immediately; the full schedule will take over once loaded.
+  if (config.loading) {
+    return {
+      index: 0,
+      show: shows[0],
+      offsetSeconds: 0,
+      remainingSeconds: 3600,
+      channel_name: config.channel_name,
+      channel_logo: config.channel_logo,
+    };
+  }
+
   // Start the Pokémon playlist at episode 1 at the scheduled time.
   const baseEpochMs = Number.isFinite(scheduledStartMs) && scheduledStartMs > 0
     ? scheduledStartMs
