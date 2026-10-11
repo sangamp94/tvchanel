@@ -16,20 +16,37 @@ function ffprobeDuration(videoUrl) {
       "default=noprint_wrappers=1:nokey=1",
       videoUrl,
     ];
-    const proc = spawn("ffprobe", args);
+    const proc = spawn("ffprobe", args, { stdio: ["ignore", "pipe", "pipe"] });
     let out = "";
     let err = "";
+    let settled = false;
+    const timeout = setTimeout(() => {
+      if (!settled) {
+        proc.kill("SIGKILL");
+        settled = true;
+        reject(new Error("ffprobe timed out after 20 seconds"));
+      }
+    }, 20000);
     proc.stdout.on("data", (d) => (out += d.toString()));
     proc.stderr.on("data", (d) => (err += d.toString()));
     proc.on("close", (code) => {
+      clearTimeout(timeout);
+      if (settled) return;
+      settled = true;
       const val = parseFloat(out.trim());
-      if (code === 0 && !Number.isNaN(val) && val > 0) {
+      if (code === 0 && Number.isFinite(val) && val > 0) {
         resolve(val);
       } else {
         reject(new Error(`ffprobe failed for ${videoUrl}: ${err || "unknown error"}`));
       }
     });
-    proc.on("error", (e) => reject(e));
+    proc.on("error", (e) => {
+      clearTimeout(timeout);
+      if (!settled) {
+        settled = true;
+        reject(e);
+      }
+    });
   });
 }
 
@@ -43,12 +60,18 @@ async function resolveDuration(show) {
   console.log(`[schedule] Probing duration for "${show.name}"...`);
   const probed = await ffprobeDuration(show.video_url);
   const rounded = Math.round(probed);
-  await db.cacheDuration(show.video_url, rounded);
+  // Duration probing should still work when the optional cache DB is unavailable.
+  await db.cacheDuration(show.video_url, rounded).catch((e) => console.warn("[schedule] Duration cache unavailable:", e.message));
   return rounded;
 }
 
 async function fetchRawJson(url) {
-  const res = await fetch(url, { cache: "no-store" });
+  let parsed;
+  try { parsed = new URL(url); } catch { throw new Error("SCHEDULE_SOURCE_URL must be a valid HTTPS URL"); }
+  if (parsed.protocol !== "https:") {
+    throw new Error("SCHEDULE_SOURCE_URL must use HTTPS");
+  }
+  const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15000) });
   if (!res.ok) {
     throw new Error(`Failed to fetch schedule JSON: HTTP ${res.status}`);
   }
@@ -72,16 +95,30 @@ async function refresh() {
   const shows = [];
   for (const show of raw.shows) {
     if (!show.name || !show.video_url) {
-      console.warn("[schedule] Skipping invalid show entry (missing name/video_url):", show);
+      console.warn("[schedule] Skipping invalid show entry (missing name/video_url).");
       continue;
     }
-    const duration = await resolveDuration(show);
-    shows.push({
-      name: show.name,
-      logo: show.logo || null,
-      video_url: show.video_url,
-      duration,
-    });
+    let source;
+    try { source = new URL(show.video_url); } catch { 
+      console.warn("[schedule] Skipping show with invalid video URL:", show.name);
+      continue;
+    }
+    if (!["http:", "https:"].includes(source.protocol)) {
+      console.warn("[schedule] Skipping non-HTTP(S) video URL:", show.name);
+      continue;
+    }
+    try {
+      const duration = await resolveDuration(show);
+      if (!Number.isFinite(duration) || duration <= 0) throw new Error("Invalid duration");
+      shows.push({
+        name: String(show.name).slice(0, 200),
+        logo: show.logo ? String(show.logo) : null,
+        video_url: source.href,
+        duration,
+      });
+    } catch (e) {
+      console.warn(`[schedule] Skipping "${String(show.name).slice(0, 80)}": ${e.message}`);
+    }
   }
 
   if (shows.length === 0) {
@@ -89,7 +126,8 @@ async function refresh() {
   }
 
   const totalDuration = shows.reduce((sum, s) => sum + s.duration, 0);
-  const epochDate = raw.epoch ? new Date(raw.epoch) : new Date(0);
+  const parsedEpoch = raw.epoch ? new Date(raw.epoch) : new Date(0);
+  const epochDate = Number.isFinite(parsedEpoch.getTime()) ? parsedEpoch : new Date(0);
 
   // Dashboard-set logo overrides the JSON's channel_logo, if present.
   const override = await db.getChannelOverride();
@@ -136,12 +174,14 @@ function getStatus() {
   };
 }
 
-function startAutoRefresh() {
-  const seconds = Number(process.env.SCHEDULE_REFRESH_SECONDS || 60);
-  refresh().catch((e) => {
+async function startAutoRefresh() {
+  const seconds = Math.max(30, Number(process.env.SCHEDULE_REFRESH_SECONDS || 60));
+  try {
+    await refresh();
+  } catch (e) {
     lastFetchError = e.message;
     console.error("[schedule] Initial load failed:", e.message);
-  });
+  }
   setInterval(() => {
     refresh().catch((e) => {
       lastFetchError = e.message;
