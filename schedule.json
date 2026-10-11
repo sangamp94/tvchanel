@@ -1,13 +1,412 @@
 {
   "channel_name": "Sangam TV",
   "channel_logo": "https://raw.githubusercontent.com/sangamp94/tvchanel/main/public/brand/image.png",
-  "epoch": "2026-10-11T12:30:00Z",
+  "epoch": "2026-10-11T15:53:00Z",
   "shows": [
     {
-      "name": "Live Stream",
+      "name": "Pokémon Season 1 - Episode 1",
       "logo": "",
-      "video_url": "https://002.cdnplayer.eu/live/csstream1/chunklist.m3u8?vidictid=207377775089&id=1001&pk=fefcdd8b00a7cfa2d353aa9e23fce8ded0dec2abce2e2f8d0c1e003dbd14bdbfdac7f095e7c25b62b3a0c21361b77898d7a8a178aa1e97e5a91331b55d3d1ea4",
-      "duration": 7200
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_01.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 2",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_02.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 3",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_03.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 4",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_04.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 5",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_05.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 6",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_06.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 7",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_07.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 8",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_08.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 9",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_09.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 10",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_10.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 11",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_11.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 12",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_12.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 13",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_13.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 14",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_14.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 15",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_15.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 16",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_16.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 17",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_17.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 18",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_18.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 19",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_19.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 20",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_20.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 21",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_21.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 22",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_22.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 23",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_23.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 24",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_24.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 25",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_25.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 26",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_26.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 27",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_27.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 28",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_28.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 29",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_29.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 30",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_30.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 31",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_31.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 32",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_32.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 33",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_33.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 34",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_34.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 35",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_35.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 36",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_36.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 37",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_37.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 39",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_39.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 40",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_40.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 41",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_41.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 42",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_42.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 43",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_43.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 44",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_44.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 45",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_45.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 46",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_46.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 47",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_47.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 48",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_48.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 49",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_49.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 50",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_50.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 51",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_51.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 52",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_52.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 53",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_53.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 54",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_54.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 55",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_55.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 56",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_56.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 57",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_57.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 58",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_58.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 59",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_59.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 60",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_60.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 61",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_61.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 62",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_62.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 63",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_63.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 64",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_64.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 65",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_65.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 66",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_66.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 67",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_67.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 68",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_68.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 69",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_69.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 70",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_70.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 71",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_71.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 72",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_72.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 73",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_73.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 74",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_74.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 75",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_75.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 76",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_76.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 77",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_77.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 78",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_78.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 79",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_79.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 80",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_80.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 81",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_81.mp4"
+    },
+    {
+      "name": "Pokémon Season 1 - Episode 82",
+      "logo": "",
+      "video_url": "https://archive.org/download/pokemonseason1hindi/Pokemon_01_82.mp4"
     }
   ]
 }
