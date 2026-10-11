@@ -157,6 +157,7 @@ async function startShow(nowPlaying) {
   const preset = process.env.STREAM_PRESET || "ultrafast";
   const vBitrate = process.env.VIDEO_BITRATE || "800k";
   const aBitrate = process.env.AUDIO_BITRATE || "96k";
+  const fps = Math.max(15, Math.min(30, Number(process.env.STREAM_FPS || 25)));
 
   const { filterComplex, extraInputs } = await buildFilterGraph({
     channelLogoUrl: channel_logo,
@@ -199,7 +200,7 @@ async function startShow(nowPlaying) {
     "-bufsize",
     process.env.VIDEO_BUFSIZE || "1600k",
     "-threads",
-    String(Math.max(1, Math.min(4, Number(process.env.STREAM_THREADS || 2))),
+    String(Math.max(1, Math.min(4, Number(process.env.STREAM_THREADS || 2)))),
     "-pix_fmt",
     "yuv420p",
     "-g",
