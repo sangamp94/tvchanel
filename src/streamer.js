@@ -177,74 +177,29 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     inputIndex++;
   }
 
-  // Single esports NOW HUD. First mask the old green/white NOW label visible
-  // in the supplied source picture, then draw one clean glass banner above it.
+  // Simple, clean red-and-white NOW label. No masking and no animation:
+  // keep the cartoon picture untouched except for the small overlay itself.
   const marginX = Math.round(width * 0.025);
   const marginY = Math.round(height * 0.045);
-  const plateW = Math.round(width * 0.305);
-  const plateH = Math.round(height * 0.085);
-  const radius = Math.max(4, Math.round(plateH * 0.20));
+  const plateW = Math.round(width * 0.285);
+  const plateH = Math.round(height * 0.070);
   const plateX = marginX;
   const nowFont = Math.max(13, Math.round(height * 0.030));
+  const base = "nowbase";
+  const edge = "nowedge";
+  const accent = "nowaccent";
 
-  // Mask only the small top-left legacy-title area so it cannot show through
-  // beneath the new banner; keep the rest of the cartoon unobstructed.
-  const legacyMask = "hudmask";
   filterParts.push(
-    `[${lastVideoLabel}]drawbox=x=${plateX - 2}:y=${marginY - 2}:w=${plateW + 8}:h=${Math.round(plateH * 1.68)}:color=0x050B16@0.96:t=fill[${legacyMask}]`
-  );
-
-  // Rounded glass-like plate, approximated with stepped horizontal slices.
-  let glassInput = legacyMask;
-  const bandCount = 9;
-  for (let i = 0; i < bandCount; i++) {
-    const center = (bandCount - 1) / 2;
-    const inset = Math.round(radius * (1 - Math.abs((i - center) / center)));
-    const y = marginY + Math.round(i * plateH / bandCount);
-    const h = Math.max(1, Math.ceil(plateH / bandCount));
-    const out = `hudglass${i}`;
-    filterParts.push(
-      `[${glassInput}]drawbox=x=${plateX + inset}:y=${y}:w=${plateW - inset * 2}:h=${h}:color=0x07111F@0.84:t=fill[${out}]`
-    );
-    glassInput = out;
-  }
-
-  // Crisp cyan and violet HUD rails.
-  const violet = "hudviolet";
-  const cyan = "hudcyan";
-  const rim = "hudrim";
-  const shine = "hudshine";
-  const rail = "hudrail";
-  const sweep = "hudsweep";
-  const glint = "hudglint";
-  filterParts.push(
-    `[${glassInput}]drawbox=x=${plateX - 1}:y=${marginY + radius - 1}:w=${plateW + 2}:h=${plateH - radius * 2 + 2}:color=0x9B4DFF@0.72:t=3[${violet}]`
+    `[${lastVideoLabel}]drawbox=x=${plateX}:y=${marginY}:w=${plateW}:h=${plateH}:color=0x111111@0.78:t=fill[${base}]`
   );
   filterParts.push(
-    `[${violet}]drawbox=x=${plateX}:y=${marginY + radius}:w=${plateW}:h=${plateH - radius * 2}:color=0x20E7FF@0.95:t=2[${cyan}]`
+    `[${base}]drawbox=x=${plateX}:y=${marginY}:w=${plateW}:h=${plateH}:color=0xFFFFFF@0.92:t=1[${edge}]`
   );
   filterParts.push(
-    `[${cyan}]drawbox=x=${plateX + 4}:y=${marginY + radius + 2}:w=${plateW - 8}:h=2:color=0xE8FCFF@0.95:t=fill[${rim}]`
+    `[${edge}]drawbox=x=${plateX}:y=${marginY}:w=4:h=${plateH}:color=0xE52435@1:t=fill[${accent}]`
   );
   filterParts.push(
-    `[${rim}]drawbox=x=${plateX + 5}:y=${marginY + radius + 5}:w=4:h=${plateH - radius * 2 - 10}:color=0x20E7FF@1:t=fill[${shine}]`
-  );
-
-  // Moving specular highlight.
-  const sweepWidth = Math.max(8, Math.round(plateW * 0.045));
-  const sweepX = `${plateX + 8}+mod(t*${Math.max(35, Math.round(width * 0.42))},${Math.max(1, plateW - 20)})`;
-  filterParts.push(
-    `[${shine}]drawbox=x='${sweepX}':y=${marginY + radius + 4}:w=${sweepWidth}:h=${plateH - radius * 2 - 8}:color=0xA5F7FF@0.25:t=fill[${sweep}]`
-  );
-  const glintX = `${plateX}+mod(t*${Math.max(50, Math.round(width * 0.55))},${Math.max(1, plateW - 12)})`;
-  filterParts.push(
-    `[${sweep}]drawbox=x='${glintX}':y=${marginY + radius + 2}:w=10:h=2:color=0xFFFFFF@0.95:t=fill[${glint}]`
-  );
-
-  const textX = plateX + Math.round(width * 0.020);
-  const textY = marginY + Math.round(plateH * 0.27);
-  filterParts.push(
-    `[${glint}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=0xF5FCFF:fontsize=${nowFont}:borderw=1:bordercolor=0x04101D@0.95:shadowcolor=0x20E7FF@0.65:shadowx=0:shadowy=0:x=${textX}:y=${textY}[vout]`
+    `[${accent}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=white:fontsize=${nowFont}:borderw=1:bordercolor=0x111111@0.85:x=${plateX + Math.round(width * 0.014)}:y=${marginY + Math.round(plateH * 0.22)}[vout]`
   );
 
   // Bottom promo strip is genuinely intermittent: the background and both text
