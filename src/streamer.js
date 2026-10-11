@@ -268,6 +268,11 @@ async function startShow(nowPlaying) {
     "-re",
     "-ss",
     String(Math.max(0, Math.floor(offsetSeconds))),
+    // Keep input probing bounded so a new episode starts producing frames sooner.
+    "-probesize",
+    "1000000",
+    "-analyzeduration",
+    "1000000",
     "-i",
     show.video_url,
     ...extraInputs,
@@ -309,8 +314,10 @@ async function startShow(nowPlaying) {
     "hls",
     "-hls_time",
     "4",
+    // Retain a larger rolling window so IPTV players can buffer across short
+    // encoder restarts at episode boundaries.
     "-hls_list_size",
-    "8",
+    "12",
     "-start_number",
     String(nextSegmentNumber),
     // Keep deletion under cleanupOrphanSegments() rather than letting FFmpeg
