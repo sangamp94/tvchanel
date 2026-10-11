@@ -19,7 +19,7 @@ Neon Postgres (logo override + cache)  ──┘
 This is genuinely free to run, but **"free + zero lag/frame drops, guaranteed" is not something anyone can promise** on shared free hosting. Here's the honest picture:
 
 - **Render's free web service sleeps after 15 minutes with no traffic.** If nobody is watching, the channel goes offline, and the next viewer triggers a ~30-60s cold start. For a channel that must always be live, you'll eventually want a paid Render plan (Starter, ~$7/mo) which doesn't sleep.
-- **Free tier CPU/RAM is limited** (shared CPU, 512MB RAM). Continuous video transcoding with overlays is CPU-heavy. This project is tuned conservatively (720p, `veryfast` preset, 1500kbps) to fit — but a very high multiple-viewer load or very high-bitrate source videos can still cause stutter. Lower `STREAM_WIDTH`/`STREAM_HEIGHT`/`VIDEO_BITRATE` in your env vars if you see issues.
+- **Free tier CPU/RAM is limited.** Continuous video transcoding with overlays is CPU-heavy. Defaults are tuned more conservatively for testing (854×480, 25 FPS, `ultrafast`, 800kbps, two encoder threads). This reduces CPU use and bandwidth but also lowers picture quality. Multiple viewers, slow source URLs, or constrained shared CPU can still cause stutter.
 - **There's a brief (1-3 second) hiccup when one show ends and the next begins.** This is because switching sources restarts the encoder cleanly (simplest, most reliable approach). A perfectly seamless transition is possible but requires a much more complex pipeline — not something achievable reliably for free infrastructure.
 - **Neon's free tier is more than enough** — this app only stores your logo setting and cached video durations, which is a tiny amount of data.
 
@@ -32,7 +32,7 @@ None of this means it won't work — it will, and it'll look and feel like real 
 - A [GitHub](https://github.com) account (to hold this code + optionally your schedule JSON and logo images)
 - A [Neon](https://neon.tech) account (free Postgres database)
 - A [Render](https://render.com) account (free web hosting)
-- Direct URLs to your video files (MP4/MKV/M3U8) and logo images (PNG), hosted anywhere public
+- Direct URLs to video files (MP4/MKV/M3U8) and logo images (PNG), hosted anywhere public; use only content you own or are explicitly licensed to rebroadcast
 
 ---
 
@@ -58,19 +58,20 @@ See `data/schedule.example.json` for the exact format:
 ```json
 {
   "channel_name": "MyTV",
-  "channel_logo": "https://.../channel-logo.png",
+  "channel_logo": "https://your-host/channel-logo.png",
   "epoch": "2026-01-01T00:00:00Z",
   "shows": [
     {
       "name": "Pokemon Episode 1",
-      "logo": "https://.../pokemon-logo.png",
-      "video_url": "https://.../pokemon-ep1.mp4",
-      "duration": 1380
+      "logo": "https://your-host/show-logo.png",
+      "video_url": "https://your-host/authorized-video-1.mp4",
+      "duration": 1800
     },
     {
-      "name": "News Bulletin",
-      "logo": "https://.../news-logo.png",
-      "video_url": "https://.../news-vod.m3u8"
+      "name": "Authorized Programme 2",
+      "logo": "https://your-host/show-logo-2.png",
+      "video_url": "https://your-host/authorized-video-2.m3u8",
+      "duration": 1800
     }
   ]
 }
@@ -134,7 +135,10 @@ Either way, first build takes a few minutes (installing ffmpeg + node modules).
 | `ADMIN_PASSWORD` | Yes | Dashboard login password |
 | `SCHEDULE_SOURCE_URL` | Yes | Public URL to your schedule JSON |
 | `SCHEDULE_REFRESH_SECONDS` | No (default 60) | How often to re-fetch the schedule JSON |
-| `STREAM_WIDTH` / `STREAM_HEIGHT` | No (default 1280x720) | Output resolution — lower if you see lag |
+| `STREAM_WIDTH` / `STREAM_HEIGHT` | No (default 854x480) | Output resolution — lower if you see lag |
+| `STREAM_FPS` | No (default 25) | Output frame rate, clamped to 15–30 |
+| `STREAM_THREADS` | No (default 2) | FFmpeg encoder thread limit |
+| `VIDEO_BUFSIZE` | No (default 1600k) | Encoder rate-control buffer |
 | `STREAM_PRESET` | No (default `veryfast`) | ffmpeg x264 preset — `ultrafast` uses less CPU, `veryfast` looks a bit better |
 | `VIDEO_BITRATE` | No (default `1500k`) | Lower this (e.g. `800k`) if the free plan struggles |
 | `AUDIO_BITRATE` | No (default `128k`) | Audio bitrate |
