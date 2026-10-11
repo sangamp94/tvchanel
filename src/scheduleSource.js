@@ -14,12 +14,6 @@ function ffprobeDuration(videoUrl) {
       "format=duration",
       "-of",
       "default=noprint_wrappers=1:nokey=1",
-      // Archive.org occasionally returns transient 5xx responses; let FFmpeg retry.
-      "-reconnect", "1",
-      "-reconnect_on_network_error", "1",
-      "-reconnect_on_http_error", "5xx,429",
-      "-reconnect_delay_max", "3",
-      "-reconnect_max_retries", "3",
       videoUrl,
     ];
     const proc = spawn("ffprobe", args, { stdio: ["ignore", "pipe", "pipe"] });
