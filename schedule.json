@@ -7,6 +7,12 @@
       "name": "Perman",
       "logo": "",
       "video_url": "https://nei5-a0eace4761b8.herokuapp.com/stream/264709?hash=023464&d=true",
+      "duration": 5760
+    },
+    {
+      "name": "Pokemon X Y Z",
+      "logo": "",
+      "video_url": "https://nei5-a0eace4761b8.herokuapp.com/stream/264992?hash=927608&d=true",
       "duration": 7200
     }
   ]
