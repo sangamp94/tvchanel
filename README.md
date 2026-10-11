@@ -139,9 +139,9 @@ Either way, first build takes a few minutes (installing ffmpeg + node modules).
 | `STREAM_FPS` | No (default 25) | Output frame rate, clamped to 15–30 |
 | `STREAM_THREADS` | No (default 2) | FFmpeg encoder thread limit |
 | `VIDEO_BUFSIZE` | No (default 1600k) | Encoder rate-control buffer |
-| `STREAM_PRESET` | No (default `veryfast`) | ffmpeg x264 preset — `ultrafast` uses less CPU, `veryfast` looks a bit better |
-| `VIDEO_BITRATE` | No (default `1500k`) | Lower this (e.g. `800k`) if the free plan struggles |
-| `AUDIO_BITRATE` | No (default `128k`) | Audio bitrate |
+| `STREAM_PRESET` | No (default `ultrafast`) | FFmpeg x264 preset; `ultrafast` uses less CPU |
+| `VIDEO_BITRATE` | No (default `800k`) | Increase for quality only if CPU and bandwidth allow |
+| `AUDIO_BITRATE` | No (default `96k`) | Audio bitrate |
 
 ---
 
