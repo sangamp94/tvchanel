@@ -177,30 +177,34 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     inputIndex++;
   }
 
-  // Minimal NOW bug: one small line only, so the programme picture stays visible.
+  // Compact rounded-style NOW banner. The plate is built from short horizontal
+  // bands to soften the corners without requiring any raster image asset.
   const marginX = Math.round(width * 0.025);
   const marginY = Math.round(height * 0.045);
-  const plateW = Math.round(width * 0.26);
-  const plateH = Math.round(height * 0.075);
-  const accentW = Math.max(3, Math.round(width * 0.005));
+  const plateW = Math.round(width * 0.255);
+  const plateH = Math.round(height * 0.072);
+  const radius = Math.max(3, Math.round(plateH * 0.22));
   const plateX = marginX;
-  const nowBase = "nowplate";
-  const nowEdge = "nowedge";
+  const nowFont = Math.max(12, Math.round(height * 0.027));
+  let roundedInput = lastVideoLabel;
+  const bandCount = 5;
+  for (let i = 0; i < bandCount; i++) {
+    const inset = Math.round(radius * (1 - Math.abs((i - (bandCount - 1) / 2) / ((bandCount - 1) / 2)));
+    const y = marginY + Math.round(i * plateH / bandCount);
+    const h = Math.max(1, Math.ceil(plateH / bandCount));
+    const out = `nowround${i}`;
+    filterParts.push(
+      `[${roundedInput}]drawbox=x=${plateX + inset}:y=${y}:w=${plateW - inset * 2}:h=${h}:color=0x080B12@0.82:t=fill[${out}]`
+    );
+    roundedInput = out;
+  }
   const nowAccent = "nowaccent";
   const nowText = "nowtext";
-  const nowFont = Math.max(12, Math.round(height * 0.027));
-
   filterParts.push(
-    `[${lastVideoLabel}]drawbox=x=${plateX}:y=${marginY}:w=${plateW}:h=${plateH}:color=0x080B12@0.76:t=fill[${nowBase}]`
+    `[${roundedInput}]drawbox=x=${plateX + 2}:y=${marginY + radius}:w=3:h=${plateH - radius * 2}:color=0xFF3158@1:t=fill[${nowAccent}]`
   );
   filterParts.push(
-    `[${nowBase}]drawbox=x=${plateX}:y=${marginY}:w=${plateW}:h=${plateH}:color=0xFFFFFF@0.18:t=1[${nowEdge}]`
-  );
-  filterParts.push(
-    `[${nowEdge}]drawbox=x=${plateX}:y=${marginY}:w=${accentW}:h=${plateH}:color=0xFF3158@1:t=fill[${nowAccent}]`
-  );
-  filterParts.push(
-    `[${nowAccent}]drawtext=fontfile=${FONT_PATH}:text='NOW > ${escapeDrawtext(showName)}':fontcolor=white:fontsize=${nowFont}:x=${plateX + Math.round(width * 0.014)}:y=${marginY + Math.round(plateH * 0.24)}:borderw=0[vout]`
+    `[${nowAccent}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=white:fontsize=${nowFont}:x=${plateX + Math.round(width * 0.014)}:y=${marginY + Math.round(plateH * 0.24)}:borderw=0[vout]`
   );
 
   // Bottom promo strip is genuinely intermittent: the background and both text
