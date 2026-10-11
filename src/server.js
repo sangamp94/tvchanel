@@ -25,6 +25,14 @@ app.use(express.json());
 // ---- Public: health check for Render ----
 app.get("/healthz", (req, res) => res.send("ok"));
 
+// ---- Public: code-drawn Streamify TV brand assets (SVG, not a raster image) ----
+app.use("/brand", express.static(path.join(__dirname, "..", "public", "brand"), {
+  setHeaders: (res) => {
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  },
+}));
+
 // ---- Public: HLS output (this is what VLC / players connect to) ----
 app.use(
   "/live",
