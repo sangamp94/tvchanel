@@ -145,6 +145,25 @@ async function refresh() {
   }
 
   const totalDuration = shows.reduce((sum, s) => sum + s.duration, 0);
+  const dailyStartTime = /^([01]\\d|2[0-3]):([0-5]\\d)$/.test(String(raw.daily_start_time || ""))
+    ? String(raw.daily_start_time)
+    : null;
+  let preShow = null;
+  if (raw.pre_show && raw.pre_show.name && raw.pre_show.video_url) {
+    try {
+      const preShowUrl = new URL(raw.pre_show.video_url);
+      if (["http:", "https:"].includes(preShowUrl.protocol)) {
+        preShow = {
+          name: String(raw.pre_show.name).slice(0, 200),
+          logo: raw.pre_show.logo ? String(raw.pre_show.logo) : null,
+          video_url: preShowUrl.href,
+          duration: 1,
+        };
+      }
+    } catch (e) {
+      console.warn("[schedule] Ignoring invalid pre_show URL:", e.message);
+    }
+  }
   const parsedEpoch = raw.epoch ? new Date(raw.epoch) : new Date(0);
   const epochDate = Number.isFinite(parsedEpoch.getTime()) ? parsedEpoch : new Date(0);
 
@@ -163,6 +182,9 @@ async function refresh() {
     epoch: epochDate.getTime(),
     shows,
     totalDuration,
+    daily_start_time: dailyStartTime,
+    timezone: "Asia/Kolkata",
+    pre_show: preShow,
   };
   lastFetchError = null;
   lastFetchAt = new Date();
