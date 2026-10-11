@@ -193,7 +193,7 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     `[${lastVideoLabel}]drawbox=x=${plateX}:y=${marginY}:w=${plateW}:h=${plateH}:color=0x111111@0.78:t=fill[${base}]`
   );
   filterParts.push(
-    `[${base}]drawbox=x=${plateX}:y=${marginY}:w=${plateW}:h=${plateH}:color=0xFFFFFF@0.92:t=1[${edge}]`
+    `[${base}]null[${edge}]`
   );
   filterParts.push(
     `[${edge}]drawbox=x=${plateX}:y=${marginY}:w=4:h=${plateH}:color=0xE52435@1:t=fill[${accent}]`
