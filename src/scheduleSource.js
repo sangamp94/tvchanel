@@ -183,6 +183,7 @@ async function refresh() {
     shows,
     totalDuration,
     daily_start_time: dailyStartTime,
+    start_at: raw.start_at && Number.isFinite(new Date(raw.start_at).getTime()) ? new Date(raw.start_at).getTime() : null,
     timezone: "Asia/Kolkata",
     pre_show: preShow,
   };
