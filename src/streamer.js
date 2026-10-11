@@ -152,7 +152,7 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     );
     const wordX = iconX + iconSize + pad;
     filterParts.push(
-      `[${playText}]drawtext=fontfile=${FONT_PATH}:text='Streamify':fontcolor=white:fontsize=${Math.round(badgeH * 0.40)}:borderw=1:bordercolor=0x5B123D:x=${wordX}:y=${badgeY + Math.round(badgeH * 0.12)}[${word}]`
+      `[${playText}]drawtext=fontfile=${FONT_PATH}:text='MAHHA':fontcolor=white:fontsize=${Math.round(badgeH * 0.40)}:borderw=1:bordercolor=0x5B123D:x=${wordX}:y=${badgeY + Math.round(badgeH * 0.12)}[${word}]`
     );
     filterParts.push(
       `[${word}]drawtext=fontfile=${FONT_PATH}:text='TV':fontcolor=0xFF334F:fontsize=${Math.round(badgeH * 0.30)}:borderw=1:bordercolor=0x5B123D:x=${wordX}:y=${badgeY + Math.round(badgeH * 0.56)}[${tv}]`
