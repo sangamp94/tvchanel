@@ -177,77 +177,36 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     inputIndex++;
   }
 
-  // Premium Now / Next programme bug: two compact translucent broadcast plates.
-  // Derive Next from the same loaded schedule so it stays in sync with the scheduler.
-  const schedule = require("./scheduleSource").getConfig();
-  const playing = scheduler.getNowPlaying();
-  const nextIndex = schedule && schedule.shows && schedule.shows.length
-    ? ((playing ? playing.index : 0) + 1) % schedule.shows.length
-    : 0;
-  const nextName = schedule && schedule.shows && schedule.shows[nextIndex]
-    ? schedule.shows[nextIndex].name
-    : showName;
-
+  // Minimal NOW bug: one small line only, so the programme picture stays visible.
   const marginX = Math.round(width * 0.025);
   const marginY = Math.round(height * 0.045);
-  const plateW = Math.round(width * 0.34);
-  const plateH = Math.round(height * 0.105);
-  const plateGap = Math.round(height * 0.018);
-  const labelSize = Math.max(10, Math.round(height * 0.022));
-  const titleSize = Math.max(13, Math.round(height * 0.030));
-  const accentW = Math.max(3, Math.round(width * 0.006));
+  const plateW = Math.round(width * 0.26);
+  const plateH = Math.round(height * 0.075);
+  const accentW = Math.max(3, Math.round(width * 0.005));
   const plateX = marginX;
-  const nowY = marginY;
-  const nextY = marginY + plateH + plateGap;
   const nowBase = "nowplate";
   const nowEdge = "nowedge";
   const nowAccent = "nowaccent";
-  const nowLabel = "nowlabel";
-  const nowTitle = "nowtitle";
-  const nextBase = "nextplate";
-  const nextEdge = "nextedge";
-  const nextAccent = "nextaccent";
-  const nextLabel = "nextlabel";
+  const nowText = "nowtext";
+  const nowFont = Math.max(12, Math.round(height * 0.027));
 
   filterParts.push(
-    `[${lastVideoLabel}]drawbox=x=${plateX}:y=${nowY}:w=${plateW}:h=${plateH}:color=0x080B12@0.86:t=fill[${nowBase}]`
+    `[${lastVideoLabel}]drawbox=x=${plateX}:y=${marginY}:w=${plateW}:h=${plateH}:color=0x080B12@0.76:t=fill[${nowBase}]`
   );
   filterParts.push(
-    `[${nowBase}]drawbox=x=${plateX}:y=${nowY}:w=${plateW}:h=${plateH}:color=0xFFFFFF@0.22:t=1[${nowEdge}]`
+    `[${nowBase}]drawbox=x=${plateX}:y=${marginY}:w=${plateW}:h=${plateH}:color=0xFFFFFF@0.18:t=1[${nowEdge}]`
   );
   filterParts.push(
-    `[${nowEdge}]drawbox=x=${plateX}:y=${nowY}:w=${accentW}:h=${plateH}:color=0xFF3158@1:t=fill[${nowAccent}]`
+    `[${nowEdge}]drawbox=x=${plateX}:y=${marginY}:w=${accentW}:h=${plateH}:color=0xFF3158@1:t=fill[${nowAccent}]`
   );
   filterParts.push(
-    `[${nowAccent}]drawtext=fontfile=${FONT_PATH}:text='NOW':fontcolor=0xFF496A:fontsize=${labelSize}:x=${plateX + Math.round(width * 0.018)}:y=${nowY + Math.round(plateH * 0.12)}:borderw=0[${nowLabel}]`
-  );
-  filterParts.push(
-    `[${nowLabel}]drawtext=fontfile=${FONT_PATH}:text='${escapeDrawtext(showName)}':fontcolor=white:fontsize=${titleSize}:x=${plateX + Math.round(width * 0.018)}:y=${nowY + Math.round(plateH * 0.48)}:borderw=0[${nowTitle}]`
+    `[${nowAccent}]drawtext=fontfile=${FONT_PATH}:text='NOW > ${escapeDrawtext(showName)}':fontcolor=white:fontsize=${nowFont}:x=${plateX + Math.round(width * 0.014)}:y=${marginY + Math.round(plateH * 0.24)}:borderw=0[vout]`
   );
 
-  filterParts.push(
-    `[${nowTitle}]drawbox=x=${plateX}:y=${nextY}:w=${plateW}:h=${plateH}:color=0x080B12@0.80:t=fill[${nextBase}]`
-  );
-  filterParts.push(
-    `[${nextBase}]drawbox=x=${plateX}:y=${nextY}:w=${plateW}:h=${plateH}:color=0xFFFFFF@0.18:t=1[${nextEdge}]`
-  );
-  filterParts.push(
-    `[${nextEdge}]drawbox=x=${plateX}:y=${nextY}:w=${accentW}:h=${plateH}:color=0x31D9FF@1:t=fill[${nextAccent}]`
-  );
-  filterParts.push(
-    `[${nextAccent}]drawtext=fontfile=${FONT_PATH}:text='NEXT':fontcolor=0x31D9FF:fontsize=${labelSize}:x=${plateX + Math.round(width * 0.018)}:y=${nextY + Math.round(plateH * 0.12)}:borderw=0[${nextLabel}]`
-  );
-  filterParts.push(
-    `[${nextLabel}]drawtext=fontfile=${FONT_PATH}:text='${escapeDrawtext(nextName)}':fontcolor=white:fontsize=${titleSize}:x=${plateX + Math.round(width * 0.018)}:y=${nextY + Math.round(plateH * 0.48)}:borderw=0[vout]`
-  );
-  
-  // Promotional lower-third: shown for 12 seconds every 180 seconds of wall-clock time.
-  // A stable epoch-based window keeps every FFmpeg restart aligned to the same 3-minute cadence.
-  const adPeriod = 180;
-  const adDuration = 12;
-  const adVisible = (Math.floor(Date.now() / 1000) % adPeriod) < adDuration;
-  const adH = Math.round(height * 0.12);
-  const adY = height - adH - Math.round(height * 0.035);
+  // Bottom promo strip is genuinely intermittent: the background and both text
+  // lines share the same enable window, so it cannot cover the show between promos.
+  const adH = Math.round(height * 0.105);
+  const adY = height - adH - Math.round(height * 0.025);
   const adPad = Math.round(width * 0.025);
   const adAccentW = Math.max(4, Math.round(width * 0.008));
   const adBase = "adbase";
@@ -255,22 +214,22 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
   const adAccent = "adaccent";
   const adTitle = "adtitle";
   const adSubtitle = "adsubtitle";
+  const adEnable = "between(mod(t,180),0,12)";
   filterParts.push(
-    `[vout]drawbox=x=0:y=${adY}:w=${width}:h=${adH}:color=0x090B14@0.92:t=fill[ ${adBase}]`.replace("[ ", "[")
+    `[vout]drawbox=x=0:y=${adY}:w=${width}:h=${adH}:color=0x090B14@0.92:t=fill:enable='${adEnable}'[${adBase}]`
   );
   filterParts.push(
-    `[${adBase}]drawbox=x=0:y=${adY}:w=${width}:h=2:color=0xFF3158@1:t=fill[${adEdge}]`
+    `[${adBase}]drawbox=x=0:y=${adY}:w=${width}:h=2:color=0xFF3158@1:t=fill:enable='${adEnable}'[${adEdge}]`
   );
   filterParts.push(
-    `[${adEdge}]drawbox=x=0:y=${adY}:w=${adAccentW}:h=${adH}:color=0xFF3158@1:t=fill[${adAccent}]`
+    `[${adEdge}]drawbox=x=0:y=${adY}:w=${adAccentW}:h=${adH}:color=0xFF3158@1:t=fill:enable='${adEnable}'[${adAccent}]`
   );
   filterParts.push(
-    `[${adAccent}]drawtext=fontfile=${FONT_PATH}:text='BANDBUDH AUR BUDBAK 2.0':fontcolor=white:fontsize=${Math.max(14, Math.round(height * 0.034))}:x=${adPad}:y=${adY + Math.round(adH * 0.16)}:borderw=0:enable='between(mod(t,180),0,12)'[${adTitle}]`
+    `[${adAccent}]drawtext=fontfile=${FONT_PATH}:text='BANDBUDH AUR BUDBAK 2.0':fontcolor=white:fontsize=${Math.max(13, Math.round(height * 0.031))}:x=${adPad}:y=${adY + Math.round(adH * 0.14)}:borderw=0:enable='${adEnable}'[${adTitle}]`
   );
   filterParts.push(
-    `[${adTitle}]drawtext=fontfile=${FONT_PATH}:text='COMING SOON ON MAHA CARTOON TV':fontcolor=0xFF6B8B:fontsize=${Math.max(10, Math.round(height * 0.026))}:x=${adPad}:y=${adY + Math.round(adH * 0.58)}:borderw=0:enable='between(mod(t,180),0,12)'[vout]`
+    `[${adTitle}]drawtext=fontfile=${FONT_PATH}:text='COMING SOON ON MAHA CARTOON TV':fontcolor=0xFF6B8B:fontsize=${Math.max(10, Math.round(height * 0.023))}:x=${adPad}:y=${adY + Math.round(adH * 0.57)}:borderw=0:enable='${adEnable}'[vout]`
   );
-
 
   return { filterComplex: filterParts.join(";"), extraInputs: inputs };
 }
