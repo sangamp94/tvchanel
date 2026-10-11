@@ -98,7 +98,10 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
   let inputIndex = 1; // 0 is the main video
 
   let lastVideoLabel = "bg";
-  filterParts.push(`[0:v]scale=${width}:${height},setsar=1[${lastVideoLabel}]`);
+  const fps = Math.max(15, Math.min(30, Number(process.env.STREAM_FPS || 25)));
+  filterParts.push(
+    `[0:v]scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2,fps=${fps},setsar=1[${lastVideoLabel}]`
+  );
 
   const channelLogoPath = await logoCache.getLocalPath(channelLogoUrl);
   if (channelLogoPath) {
@@ -149,11 +152,11 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
 async function startShow(nowPlaying) {
   const { show, offsetSeconds, remainingSeconds, channel_logo } = nowPlaying;
 
-  const width = Number(process.env.STREAM_WIDTH || 1280);
-  const height = Number(process.env.STREAM_HEIGHT || 720);
-  const preset = process.env.STREAM_PRESET || "veryfast";
-  const vBitrate = process.env.VIDEO_BITRATE || "1500k";
-  const aBitrate = process.env.AUDIO_BITRATE || "128k";
+  const width = Number(process.env.STREAM_WIDTH || 854);
+  const height = Number(process.env.STREAM_HEIGHT || 480);
+  const preset = process.env.STREAM_PRESET || "ultrafast";
+  const vBitrate = process.env.VIDEO_BITRATE || "800k";
+  const aBitrate = process.env.AUDIO_BITRATE || "96k";
 
   const { filterComplex, extraInputs } = await buildFilterGraph({
     channelLogoUrl: channel_logo,
@@ -194,7 +197,15 @@ async function startShow(nowPlaying) {
     "-maxrate",
     vBitrate,
     "-bufsize",
-    "3000k",
+    process.env.VIDEO_BUFSIZE || "1600k",
+    "-threads",
+    String(Math.max(1, Math.min(4, Number(process.env.STREAM_THREADS || 2))),
+    "-pix_fmt",
+    "yuv420p",
+    "-g",
+    String(fps * 2),
+    "-sc_threshold",
+    "0",
     "-c:a",
     "aac",
     "-b:a",
