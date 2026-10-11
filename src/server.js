@@ -61,10 +61,9 @@ async function main() {
     console.error("[server] DB schema init failed (check DATABASE_URL):", e.message)
   );
 
-  await scheduleSource.refresh().catch((e) =>
-    console.error("[server] Initial schedule load failed:", e.message)
-  );
-  scheduleSource.startAutoRefresh();
+  // startAutoRefresh performs the initial fetch before scheduling future refreshes.
+  // This avoids fetching/probing the entire schedule twice during startup.
+  await scheduleSource.startAutoRefresh();
 
   streamer.start({ intervalSeconds: 5 });
 
