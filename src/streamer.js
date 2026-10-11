@@ -177,15 +177,68 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     inputIndex++;
   }
 
-  const textX = Math.round(width * 0.02) + showLogoW + (showLogoW ? 15 : 0);
-  const textY = Math.round(height * 0.03) + 10;
-  const fontSize = Math.round(height * 0.033);
-  const label = `Now\\: ${escapeDrawtext(showName)}`;
+  // Premium Now / Next programme bug: two compact translucent broadcast plates.
+  // Derive Next from the same loaded schedule so it stays in sync with the scheduler.
+  const schedule = require("./scheduleSource").getConfig();
+  const playing = scheduler.getNowPlaying();
+  const nextIndex = schedule && schedule.shows && schedule.shows.length
+    ? ((playing ? playing.index : 0) + 1) % schedule.shows.length
+    : 0;
+  const nextName = schedule && schedule.shows && schedule.shows[nextIndex]
+    ? schedule.shows[nextIndex].name
+    : showName;
+
+  const marginX = Math.round(width * 0.025);
+  const marginY = Math.round(height * 0.045);
+  const plateW = Math.round(width * 0.34);
+  const plateH = Math.round(height * 0.105);
+  const plateGap = Math.round(height * 0.018);
+  const labelSize = Math.max(10, Math.round(height * 0.022));
+  const titleSize = Math.max(13, Math.round(height * 0.030));
+  const accentW = Math.max(3, Math.round(width * 0.006));
+  const plateX = marginX;
+  const nowY = marginY;
+  const nextY = marginY + plateH + plateGap;
+  const nowBase = "nowplate";
+  const nowEdge = "nowedge";
+  const nowAccent = "nowaccent";
+  const nowLabel = "nowlabel";
+  const nowTitle = "nowtitle";
+  const nextBase = "nextplate";
+  const nextEdge = "nextedge";
+  const nextAccent = "nextaccent";
+  const nextLabel = "nextlabel";
 
   filterParts.push(
-    `[${lastVideoLabel}]drawtext=fontfile=${FONT_PATH}:text='${label}':` +
-      `fontcolor=white:fontsize=${fontSize}:box=1:boxcolor=0x800000@0.85:boxborderw=12:` +
-      `x=${textX}:y=${textY}[vout]`
+    `[${lastVideoLabel}]drawbox=x=${plateX}:y=${nowY}:w=${plateW}:h=${plateH}:color=0x080B12@0.86:t=fill[${nowBase}]`
+  );
+  filterParts.push(
+    `[${nowBase}]drawbox=x=${plateX}:y=${nowY}:w=${plateW}:h=${plateH}:color=0xFFFFFF@0.22:t=1[${nowEdge}]`
+  );
+  filterParts.push(
+    `[${nowEdge}]drawbox=x=${plateX}:y=${nowY}:w=${accentW}:h=${plateH}:color=0xFF3158@1:t=fill[${nowAccent}]`
+  );
+  filterParts.push(
+    `[${nowAccent}]drawtext=fontfile=${FONT_PATH}:text='NOW':fontcolor=0xFF496A:fontsize=${labelSize}:x=${plateX + Math.round(width * 0.018)}:y=${nowY + Math.round(plateH * 0.12)}:borderw=0[${nowLabel}]`
+  );
+  filterParts.push(
+    `[${nowLabel}]drawtext=fontfile=${FONT_PATH}:text='${escapeDrawtext(showName)}':fontcolor=white:fontsize=${titleSize}:x=${plateX + Math.round(width * 0.018)}:y=${nowY + Math.round(plateH * 0.48)}:borderw=0[${nowTitle}]`
+  );
+
+  filterParts.push(
+    `[${nowTitle}]drawbox=x=${plateX}:y=${nextY}:w=${plateW}:h=${plateH}:color=0x080B12@0.80:t=fill[${nextBase}]`
+  );
+  filterParts.push(
+    `[${nextBase}]drawbox=x=${plateX}:y=${nextY}:w=${plateW}:h=${plateH}:color=0xFFFFFF@0.18:t=1[${nextEdge}]`
+  );
+  filterParts.push(
+    `[${nextEdge}]drawbox=x=${plateX}:y=${nextY}:w=${accentW}:h=${plateH}:color=0x31D9FF@1:t=fill[${nextAccent}]`
+  );
+  filterParts.push(
+    `[${nextAccent}]drawtext=fontfile=${FONT_PATH}:text='NEXT':fontcolor=0x31D9FF:fontsize=${labelSize}:x=${plateX + Math.round(width * 0.018)}:y=${nextY + Math.round(plateH * 0.12)}:borderw=0[${nextLabel}]`
+  );
+  filterParts.push(
+    `[${nextLabel}]drawtext=fontfile=${FONT_PATH}:text='${escapeDrawtext(nextName)}':fontcolor=white:fontsize=${titleSize}:x=${plateX + Math.round(width * 0.018)}:y=${nextY + Math.round(plateH * 0.48)}:borderw=0[vout]`
   );
 
   return { filterComplex: filterParts.join(";"), extraInputs: inputs };
