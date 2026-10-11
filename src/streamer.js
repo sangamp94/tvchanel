@@ -177,54 +177,58 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     inputIndex++;
   }
 
-  // Premium glossy-metal NOW badge: dark chrome plate, crimson outer rim,
-  // silver bevel and a narrow specular highlight. Built from FFmpeg primitives
-  // so it stays lightweight and does not need extra image assets.
+  // Futuristic esports glass HUD: translucent smoked-glass plate with layered
+  // cyan/violet glow edges and a bright status rail. Keep the video visible.
   const marginX = Math.round(width * 0.025);
   const marginY = Math.round(height * 0.045);
   const plateW = Math.round(width * 0.285);
-  const plateH = Math.round(height * 0.082);
+  const plateH = Math.round(height * 0.080);
   const radius = Math.max(4, Math.round(plateH * 0.24));
   const plateX = marginX;
   const nowFont = Math.max(13, Math.round(height * 0.030));
-  let plateInput = lastVideoLabel;
+  let glassInput = lastVideoLabel;
 
-  // Approximate rounded corners with stepped horizontal slices.
+  // Layered translucent horizontal slices simulate a soft rounded glass panel.
   const bandCount = 9;
   for (let i = 0; i < bandCount; i++) {
     const center = (bandCount - 1) / 2;
     const inset = Math.round(radius * (1 - Math.abs((i - center) / center)));
     const y = marginY + Math.round(i * plateH / bandCount);
     const h = Math.max(1, Math.ceil(plateH / bandCount));
-    const out = `nowmetal${i}`;
+    const out = `hudglass${i}`;
     filterParts.push(
-      `[${plateInput}]drawbox=x=${plateX + inset}:y=${y}:w=${plateW - inset * 2}:h=${h}:color=0x101722@0.94:t=fill[${out}]`
+      `[${glassInput}]drawbox=x=${plateX + inset}:y=${y}:w=${plateW - inset * 2}:h=${h}:color=0x07111F@0.66:t=fill[${out}]`
     );
-    plateInput = out;
+    glassInput = out;
   }
 
-  const rim = "nowrim";
-  const bevel = "nowbevel";
-  const gloss = "nowgloss";
-  const accent = "nowaccent";
-  const textShadow = "nowshadow";
-  const nowText = "nowtext";
+  // Neon halo layers: violet outer bloom, cyan inner bloom, then crisp glass rim.
+  const glowViolet = "hudglowv";
+  const glowCyan = "hudglowc";
+  const rim = "hudrim";
+  const shine = "hudshine";
+  const rail = "hudrail";
+  const status = "hudstatus";
+  const label = "hudlabel";
   filterParts.push(
-    `[${plateInput}]drawbox=x=${plateX + 1}:y=${marginY + radius}:w=${plateW - 2}:h=${plateH - radius * 2}:color=0xFF3158@0.95:t=2[${rim}]`
+    `[${glassInput}]drawbox=x=${plateX - 2}:y=${marginY + radius - 1}:w=${plateW + 4}:h=${plateH - radius * 2 + 2}:color=0x9B4DFF@0.24:t=4[${glowViolet}]`
   );
   filterParts.push(
-    `[${rim}]drawbox=x=${plateX + 4}:y=${marginY + radius + 2}:w=${plateW - 8}:h=2:color=0xF5F8FF@0.92:t=fill[${bevel}]`
+    `[${glowViolet}]drawbox=x=${plateX}:y=${marginY + radius}:w=${plateW}:h=${plateH - radius * 2}:color=0x20E7FF@0.34:t=2[${glowCyan}]`
   );
   filterParts.push(
-    `[${bevel}]drawbox=x=${plateX + 5}:y=${marginY + radius + 4}:w=${plateW - 10}:h=${Math.max(2, Math.round(plateH * 0.20))}:color=0xFFFFFF@0.12:t=fill[${gloss}]`
+    `[${glowCyan}]drawbox=x=${plateX + 2}:y=${marginY + radius + 2}:w=${plateW - 4}:h=${plateH - radius * 2 - 4}:color=0xB7F8FF@0.76:t=1[${rim}]`
   );
   filterParts.push(
-    `[${gloss}]drawbox=x=${plateX + 5}:y=${marginY + radius + 7}:w=4:h=${plateH - radius * 2 - 10}:color=0xFF3158@1:t=fill[${accent}]`
+    `[${rim}]drawbox=x=${plateX + 8}:y=${marginY + radius + 3}:w=${plateW - 16}:h=2:color=0xFFFFFF@0.42:t=fill[${shine}]`
+  );
+  filterParts.push(
+    `[${shine}]drawbox=x=${plateX + 5}:y=${marginY + radius + 5}:w=4:h=${plateH - radius * 2 - 10}:color=0x20E7FF@1:t=fill[${rail}]`
   );
   const textX = plateX + Math.round(width * 0.020);
   const textY = marginY + Math.round(plateH * 0.27);
   filterParts.push(
-    `[${accent}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=0xFFFFFF:fontsize=${nowFont}:borderw=2:bordercolor=0x05070B@0.95:shadowcolor=0x000000@0.9:shadowx=1:shadowy=2:x=${textX}:y=${textY}[vout]`
+    `[${rail}]drawtext=fontfile=${FONT_PATH}:text='NOW ➤ ${escapeDrawtext(showName)}':fontcolor=0xF5FCFF:fontsize=${nowFont}:borderw=1:bordercolor=0x04101D@0.95:shadowcolor=0x20E7FF@0.65:shadowx=0:shadowy=0:x=${textX}:y=${textY}[vout]`
   );
 
   // Bottom promo strip is genuinely intermittent: the background and both text
