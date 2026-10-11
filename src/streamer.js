@@ -103,7 +103,8 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     `[0:v]scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2,fps=${fps},setsar=1[${lastVideoLabel}]`
   );
 
-  const channelLogoPath = await logoCache.getLocalPath(channelLogoUrl);
+  const channelLogoIsStreamify = channelLogoUrl && /\/brand\/streamify\.svg(?:\?|$)/i.test(channelLogoUrl);
+  const channelLogoPath = channelLogoIsStreamify ? null : await logoCache.getLocalPath(channelLogoUrl);
   if (channelLogoPath) {
     inputs.push("-i", channelLogoPath);
     const logoLabel = `chlogo`;
@@ -116,6 +117,25 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     );
     lastVideoLabel = nextLabel;
     inputIndex++;
+  }
+
+  // Draw the Streamify TV mark directly in FFmpeg filters (no logo image file).
+  // A neon gradient isn't available in drawbox, so use layered crimson/magenta
+  // strokes plus a play glyph and wordmark as a lightweight code-rendered overlay.
+  if (channelLogoIsStreamify) {
+    const x = Math.round(width * 0.025);
+    const y = Math.round(height * 0.045);
+    const boxW = Math.round(width * 0.16);
+    const boxH = Math.round(height * 0.13);
+    const nextLabel = "brandbg";
+    filterParts.push(
+      `[${lastVideoLabel}]drawbox=x=${x}:y=${y}:w=${boxW}:h=${boxH}:color=0xFF168B@0.95:t=5[${nextLabel}]`
+    );
+    const textLabel = "brandtext";
+    filterParts.push(
+      `[${nextLabel}]drawtext=fontfile=${FONT_PATH}:text='▶ Streamify TV':fontcolor=0xFF5ACB:fontsize=${Math.round(height * 0.045)}:borderw=2:bordercolor=0xFF183C:x=${x + 8}:y=${y + Math.round(boxH * 0.34)}[${textLabel}]`
+    );
+    lastVideoLabel = textLabel;
   }
 
   const showLogoPath = await logoCache.getLocalPath(showLogoUrl);
