@@ -111,6 +111,45 @@ async function refresh() {
     throw new Error('Schedule JSON must contain a non-empty "shows" array.');
   }
 
+  // Publish a temporary pre-show config immediately, before probing every episode.
+  // This lets the live stream start while slow Archive.org metadata checks continue.
+  if (raw.pre_show && raw.pre_show.name && raw.pre_show.video_url) {
+    try {
+      const preUrl = new URL(raw.pre_show.video_url);
+      if (["http:", "https:"].includes(preUrl.protocol)) {
+        const startAt = raw.start_at && Number.isFinite(new Date(raw.start_at).getTime())
+          ? new Date(raw.start_at).getTime()
+          : Date.now() + 60 * 60 * 1000;
+        cachedConfig = {
+          channel_name: raw.channel_name || "My Channel",
+          channel_logo: raw.channel_logo || null,
+          channel_logo_source: "schedule_json",
+          epoch: Date.now(),
+          shows: [{
+            name: String(raw.shows[0].name || "Main playlist").slice(0, 200),
+            logo: raw.shows[0].logo ? String(raw.shows[0].logo) : null,
+            video_url: String(raw.shows[0].video_url),
+            duration: 1,
+          }],
+          totalDuration: 1,
+          daily_start_time: null,
+          start_at: startAt,
+          timezone: "Asia/Kolkata",
+          pre_show: {
+            name: String(raw.pre_show.name).slice(0, 200),
+            logo: raw.pre_show.logo ? String(raw.pre_show.logo) : null,
+            video_url: preUrl.href,
+            duration: 1,
+          },
+          loading: true,
+        };
+        console.log(`[schedule] Pre-show "${cachedConfig.pre_show.name}" is available while episode durations load.`);
+      }
+    } catch (e) {
+      console.warn("[schedule] Could not prepare pre-show config:", e.message);
+    }
+  }
+
   const shows = [];
   for (const show of raw.shows) {
     if (!show.name || !show.video_url) {
@@ -186,6 +225,7 @@ async function refresh() {
     start_at: raw.start_at && Number.isFinite(new Date(raw.start_at).getTime()) ? new Date(raw.start_at).getTime() : null,
     timezone: "Asia/Kolkata",
     pre_show: preShow,
+    loading: false,
   };
   lastFetchError = null;
   lastFetchAt = new Date();
