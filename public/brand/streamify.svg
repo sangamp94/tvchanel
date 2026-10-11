@@ -1,25 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
-  <title id="title">Streamify TV</title><desc id="desc">Neon pink and red television play logo with Streamify TV wordmark.</desc>
-  <defs>
-    <linearGradient id="body" x1="0" y1="0" x2="1" y2=".85"><stop stop-color="#ff8be8"/><stop offset=".38" stop-color="#ff00a8"/><stop offset=".72" stop-color="#ff1744"/><stop offset="1" stop-color="#ff5539"/></linearGradient>
-    <linearGradient id="type" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#ff7de2"/><stop offset=".45" stop-color="#ff008b"/><stop offset=".78" stop-color="#ff242f"/><stop offset="1" stop-color="#ff4c3b"/></linearGradient>
-    <linearGradient id="play" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff72df"/><stop offset="1" stop-color="#ff003c"/></linearGradient>
-    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="12" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    <filter id="soft"><feGaussianBlur stdDeviation="4"/></filter>
-  </defs>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)">
-    <path d="M480 190 390 92" stroke="#ff28c2" stroke-width="20"/><circle cx="377" cy="78" r="24" fill="#ff32ca" stroke="#ffd0f3" stroke-width="5"/>
-    <path d="M695 184 795 67" stroke="#ff244f" stroke-width="20"/><circle cx="810" cy="54" r="25" fill="#ff273c" stroke="#ffd5d9" stroke-width="5"/>
-    <path d="M300 300 Q300 245 360 235 L840 200 Q910 198 930 250 L930 420 Q930 470 875 480 L360 505 Q300 500 300 445Z" fill="url(#body)" stroke="#ffd4f5" stroke-width="7"/>
-    <path d="M340 350 Q350 278 425 270 L790 247 Q850 245 855 290 L855 405" stroke="#16040e" stroke-width="42"/>
-    <path d="M350 350 Q360 285 425 280 L790 260 Q830 260 832 295 L832 390" stroke="#250516" stroke-width="30"/>
-    <path d="M500 300 Q490 290 490 310 L490 410 Q490 432 512 420 L625 367 Q648 356 625 342Z" fill="url(#play)" stroke="#fff0fa" stroke-width="6"/>
-    <path d="M310 420 C215 465 240 535 350 540 C530 550 775 480 930 350 C1000 292 970 230 900 220" stroke="url(#body)" stroke-width="26"/>
-    <path d="M315 430 C250 475 280 515 365 518 C550 523 770 455 925 330" stroke="#ff2d68" stroke-width="8"/>
-  </g>
-  <g filter="url(#glow)">
-    <text x="210" y="615" font-family="Arial, Helvetica, sans-serif" font-size="116" font-weight="900" font-style="italic" letter-spacing="-7" fill="url(#type)" stroke="#ff5acb" stroke-width="2">Streamify</text>
-    <text x="870" y="615" font-family="Arial, Helvetica, sans-serif" font-size="86" font-weight="900" font-style="italic" letter-spacing="-3" fill="url(#type)">TV</text>
-    <path d="M250 650 Q570 625 900 645 Q970 648 1000 620" fill="none" stroke="url(#type)" stroke-width="8"/>
-  </g>
+<title id="title">Streamify TV</title><desc id="desc">Premium neon magenta and crimson television play symbol and Streamify TV wordmark.</desc>
+<defs>
+ <linearGradient id="shell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8be8"/><stop offset=".35" stop-color="#ff149f"/><stop offset=".72" stop-color="#ff183f"/><stop offset="1" stop-color="#ff6747"/></linearGradient>
+ <linearGradient id="word" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#ff7de3"/><stop offset=".48" stop-color="#ff149d"/><stop offset=".8" stop-color="#ff263d"/><stop offset="1" stop-color="#ff6347"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#190817"/><stop offset="1" stop-color="#050308"/></linearGradient>
+ <linearGradient id="play" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff8ce9"/><stop offset=".52" stop-color="#ff198e"/><stop offset="1" stop-color="#ff253f"/></linearGradient>
+ <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="13" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>
+</defs>
+<rect width="1200" height="700" rx="34" fill="#050207"/>
+<g opacity=".7" filter="url(#shadow)"><path d="M390 205 310 112M760 200 850 100" stroke="#ff168f" stroke-width="25" stroke-linecap="round"/></g>
+<g filter="url(#glow)" stroke-linejoin="round" stroke-linecap="round">
+ <path d="M500 190 402 88" stroke="#ff36bf" stroke-width="18"/><circle cx="390" cy="76" r="23" fill="#ff29bd" stroke="#ffd4f6" stroke-width="4"/>
+ <path d="M710 190 812 78" stroke="#ff2e52" stroke-width="18"/><circle cx="824" cy="65" r="23" fill="#ff2a45" stroke="#ffe0df" stroke-width="4"/>
+ <path d="M270 275Q270 225 330 215L790 184Q855 180 880 228L880 390Q880 433 835 443L335 478Q270 480 270 425Z" fill="url(#shell)" stroke="#ffd9f8" stroke-width="6"/>
+ <path d="M326 299Q326 257 378 252L770 226Q821 224 824 270L824 375" fill="none" stroke="#190713" stroke-width="28"/>
+ <path d="M365 300Q365 275 398 272L747 251Q782 249 784 281L784 359" fill="none" stroke="#390b28" stroke-width="10"/>
+ <path d="M488 280Q476 273 476 295L476 389Q476 415 500 402L617 347Q641 336 617 321Z" fill="url(#play)" stroke="#fff0fb" stroke-width="6"/>
+ <path d="M300 405C215 462 247 514 350 515C545 516 779 441 920 315C979 262 953 220 900 206" fill="none" stroke="url(#shell)" stroke-width="24"/>
+ <path d="M307 412C247 463 280 493 363 493C559 490 778 414 916 300" fill="none" stroke="#ff2b81" stroke-width="5"/>
+</g>
+<g filter="url(#glow)">
+ <text x="150" y="615" font-family="Arial,Helvetica,sans-serif" font-size="118" font-weight="900" font-style="italic" letter-spacing="-7" fill="url(#word)" stroke="#ff61cf" stroke-width="1.5">Streamify</text>
+ <text x="885" y="615" font-family="Arial,Helvetica,sans-serif" font-size="88" font-weight="900" font-style="italic" letter-spacing="-3" fill="url(#word)">TV</text>
+ <path d="M200 646Q555 618 910 641Q968 644 1005 615" fill="none" stroke="url(#word)" stroke-width="7"/>
+</g>
 </svg>
