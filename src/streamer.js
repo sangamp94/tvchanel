@@ -100,7 +100,7 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
   let lastVideoLabel = "bg";
   const fps = Math.max(15, Math.min(30, Number(process.env.STREAM_FPS || 25)));
   filterParts.push(
-    `[0:v]scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2,fps=${fps},setsar=1[${lastVideoLabel}]`
+    `[0:v]scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},fps=${fps},setsar=1[${lastVideoLabel}]`
   );
 
   const channelLogoIsStreamify = channelLogoUrl && /\/brand\/streamify\.svg(?:\?|$)/i.test(channelLogoUrl);
