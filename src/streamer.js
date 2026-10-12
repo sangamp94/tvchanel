@@ -226,10 +226,10 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
     `[${adEdge}]drawbox=x=0:y=${adY}:w=${adAccentW}:h=${adH}:color=0xFF3158@1:t=fill:enable='${adEnable}'[${adAccent}]`
   );
   filterParts.push(
-    `[${adAccent}]drawtext=fontfile=${FONT_PATH}:text='BANDBUDH AUR BUDBAK 2.0':fontcolor=white:fontsize=${Math.max(13, Math.round(height * 0.031))}:x=${adPad}:y=${adY + Math.round(adH * 0.14)}:borderw=0:enable='${adEnable}'[${adTitle}]`
+    `[${adAccent}]drawtext=fontfile=${FONT_PATH}:text='POKEMON DAILY':fontcolor=white:fontsize=${Math.max(13, Math.round(height * 0.031))}:x=${adPad}:y=${adY + Math.round(adH * 0.14)}:borderw=0:enable='${adEnable}'[${adTitle}]`
   );
   filterParts.push(
-    `[${adTitle}]drawtext=fontfile=${FONT_PATH}:text='COMING SOON ON MAHA CARTOON TV':fontcolor=0xFF6B8B:fontsize=${Math.max(10, Math.round(height * 0.023))}:x=${adPad}:y=${adY + Math.round(adH * 0.57)}:borderw=0:enable='${adEnable}'[vout]`
+    `[${adTitle}]drawtext=fontfile=${FONT_PATH}:text='EVERY DAY AT 9 AM ON MAHA CARTOON TV':fontcolor=0xFF6B8B:fontsize=${Math.max(10, Math.round(height * 0.023))}:x=${adPad}:y=${adY + Math.round(adH * 0.57)}:borderw=0:enable='${adEnable}'[vout]`
   );
 
   return { filterComplex: filterParts.join(";"), extraInputs: inputs };
