@@ -111,9 +111,11 @@ async function refresh() {
     throw new Error('Schedule JSON must contain a non-empty "shows" array.');
   }
 
-  // Publish a temporary pre-show config immediately, before probing every episode.
-  // This lets the live stream start while slow Archive.org metadata checks continue.
-  if (raw.pre_show && raw.pre_show.name && raw.pre_show.video_url) {
+  // Only publish the provisional config on the very first load. Replacing an
+  // already-working schedule with this one-show placeholder on every 60s refresh
+  // makes the streamer jump to Episode 1, then jump back to the calculated episode.
+  // Keep the last good config live while background refresh/probing is in progress.
+  if (!cachedConfig && raw.pre_show && raw.pre_show.name && raw.pre_show.video_url) {
     try {
       const preUrl = new URL(raw.pre_show.video_url);
       if (["http:", "https:"].includes(preUrl.protocol)) {
