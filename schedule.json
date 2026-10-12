@@ -1,17 +1,17 @@
 {
   "channel_name": "Sangam TV",
   "channel_logo": "https://raw.githubusercontent.com/sangamp94/tvchanel/main/public/brand/image.png",
-  "epoch": "2026-10-12T11:29:05.520Z",
+  "epoch": "2026-10-12T15:15:27.276Z",
   "shows": [
-    {
-      "name": "Bandbudh Aur Budbak 2.0",
-      "logo": "",
-      "video_url": "https://archive.org/download/my-upload-2026/ia_upload_m2pc70oq.mkv"
-    },
     {
       "name": "Professor Thompson",
       "logo": "",
       "video_url": "https://archive.org/download/my-ypload/ia_upload_w8fhzz6u.mkv"
+    },
+    {
+      "name": "Bandbudh Aur Budbak 2.0",
+      "logo": "",
+      "video_url": "https://archive.org/download/my-upload-2026/ia_upload_m2pc70oq.mkv"
     },
     {
       "name": "Pokémon Season 1 - Episode 1",
