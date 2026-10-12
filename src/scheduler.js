@@ -42,15 +42,23 @@ async function getNowPlaying() {
 
   let offsetSeconds = Math.max(0, (nowMs - activeStartedAt) / 1000);
   while (offsetSeconds >= currentDuration) {
-    activeStartedAt += currentDuration * 1000;
-    activeIndex = (activeIndex + 1) % config.shows.length;
-    offsetSeconds = Math.max(0, (nowMs - activeStartedAt) / 1000);
+    const nextIndex = (activeIndex + 1) % config.shows.length;
+    let nextDuration;
     try {
-      currentDuration = await scheduleSource.ensureDuration(activeIndex);
+      // Resolve the next episode before committing the index/time transition.
+      // If Archive.org is temporarily failing, replay the current episode rather
+      // than returning null, jumping ahead, or leaving the stream without input.
+      nextDuration = await scheduleSource.ensureDuration(nextIndex);
     } catch (e) {
-      console.warn(`[scheduler] Waiting for duration of "${config.shows[activeIndex].name}": ${e.message}`);
-      return null;
+      console.warn(`[scheduler] Next episode "${config.shows[nextIndex].name}" is not ready; replaying current episode: ${e.message}`);
+      activeStartedAt = nowMs;
+      offsetSeconds = 0;
+      break;
     }
+    activeStartedAt += currentDuration * 1000;
+    activeIndex = nextIndex;
+    currentDuration = nextDuration;
+    offsetSeconds = Math.max(0, (nowMs - activeStartedAt) / 1000);
   }
 
   const nextIndex = (activeIndex + 1) % config.shows.length;
