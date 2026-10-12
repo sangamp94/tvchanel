@@ -1,11 +1,12 @@
 const scheduleSource = require("./scheduleSource");
 
-function getNowPlaying() {
+let activeIndex = null;
+let activeStartedAt = null;
+let activeScheduleKey = null;
+
+async function getNowPlaying() {
   const config = scheduleSource.getConfig();
   if (!config || !config.shows || config.shows.length === 0) return null;
-
-  const { shows, totalDuration } = config;
-  if (totalDuration <= 0) return null;
 
   const nowMs = Date.now();
   const scheduledStartMs = Number(config.start_at);
@@ -20,51 +21,51 @@ function getNowPlaying() {
     };
   }
 
-  // While remote episode durations are still being probed, do not let the
-  // provisional 1-second placeholder duration produce an almost-zero show.
-  // Start Episode 1 immediately; the full schedule will take over once loaded.
-  if (config.loading) {
-    return {
-      index: 0,
-      show: shows[0],
-      offsetSeconds: 0,
-      remainingSeconds: 3600,
-      channel_name: config.channel_name,
-      channel_logo: config.channel_logo,
-    };
+  const scheduleKey = config.shows.map((s) => s.video_url).join("|");
+  if (activeIndex === null || activeScheduleKey !== scheduleKey) {
+    activeIndex = 0;
+    activeScheduleKey = scheduleKey;
+    // If the service comes up after the scheduled start, start the first
+    // episode now instead of skipping ahead based on guessed durations.
+    activeStartedAt = Math.max(nowMs, Number.isFinite(scheduledStartMs) && scheduledStartMs > 0 ? scheduledStartMs : nowMs);
   }
 
-  // Start the Pokémon playlist at episode 1 at the scheduled time.
-  const baseEpochMs = Number.isFinite(scheduledStartMs) && scheduledStartMs > 0
-    ? scheduledStartMs
-    : config.epoch;
-  let posInCycle = ((nowMs - baseEpochMs) / 1000) % totalDuration;
-  if (posInCycle < 0) posInCycle += totalDuration;
+  // Resolve only the active episode. Prefetch exactly one next episode in the
+  // background; a next-episode 5XX must not interrupt the currently playing one.
+  let currentDuration;
+  try {
+    currentDuration = await scheduleSource.ensureDuration(activeIndex);
+  } catch (e) {
+    console.warn(`[scheduler] Waiting for duration of "${config.shows[activeIndex].name}": ${e.message}`);
+    return null;
+  }
 
-  let cursor = 0;
-  for (let i = 0; i < shows.length; i++) {
-    const show = shows[i];
-    if (posInCycle < cursor + show.duration) {
-      const offsetSeconds = posInCycle - cursor;
-      return {
-        index: i,
-        show,
-        offsetSeconds: Math.max(0, offsetSeconds),
-        remainingSeconds: Math.max(0, show.duration - offsetSeconds),
-        channel_name: config.channel_name,
-        channel_logo: config.channel_logo,
-      };
+  let offsetSeconds = Math.max(0, (nowMs - activeStartedAt) / 1000);
+  while (offsetSeconds >= currentDuration && activeIndex < config.shows.length - 1) {
+    activeStartedAt += currentDuration * 1000;
+    activeIndex += 1;
+    offsetSeconds = Math.max(0, (nowMs - activeStartedAt) / 1000);
+    try {
+      currentDuration = await scheduleSource.ensureDuration(activeIndex);
+    } catch (e) {
+      console.warn(`[scheduler] Waiting for duration of "${config.shows[activeIndex].name}": ${e.message}`);
+      return null;
     }
-    cursor += show.duration;
   }
 
-  const lastIndex = shows.length - 1;
-  const last = shows[lastIndex];
+  const nextIndex = activeIndex + 1;
+  if (nextIndex < config.shows.length) {
+    scheduleSource.ensureDuration(nextIndex).catch((e) => {
+      console.warn(`[scheduler] Next episode duration not ready for "${config.shows[nextIndex].name}": ${e.message}`);
+    });
+  }
+
+  const show = config.shows[activeIndex];
   return {
-    index: lastIndex,
-    show: last,
-    offsetSeconds: 0,
-    remainingSeconds: last.duration,
+    index: activeIndex,
+    show,
+    offsetSeconds: Math.min(offsetSeconds, Math.max(0, currentDuration - 1)),
+    remainingSeconds: Math.max(1, currentDuration - offsetSeconds),
     channel_name: config.channel_name,
     channel_logo: config.channel_logo,
   };
