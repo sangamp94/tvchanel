@@ -17,6 +17,8 @@ let nextSegmentNumber = 0;
 let restarting = false;
 let lastError = null;
 let tickTimer = null;
+let consecutiveFailures = 0;
+let nextStartAllowedAt = 0;
 
 function escapeDrawtext(text) {
   // Escape characters that are special inside ffmpeg's drawtext "text" value.
@@ -354,7 +356,16 @@ async function startShow(nowPlaying) {
   proc.on("close", (code) => {
     if (currentProcess === proc) currentProcess = null;
     console.log(`[streamer] ffmpeg exited (show "${show.name}", code ${code})`);
-    // Immediately re-evaluate so the next show starts with minimal gap.
+    if (code !== 0) {
+      consecutiveFailures += 1;
+      const delaySeconds = Math.min(60, 5 * (2 ** Math.min(consecutiveFailures - 1, 4)));
+      nextStartAllowedAt = Date.now() + delaySeconds * 1000;
+      lastError = `FFmpeg exited with code ${code}; retrying in ${delaySeconds}s`;
+      console.error(`[streamer] ${lastError}`);
+    } else {
+      consecutiveFailures = 0;
+      nextStartAllowedAt = 0;
+    }
     setImmediate(() => tick().catch((e) => console.error("[streamer] tick error:", e.message)));
   });
 }
@@ -388,6 +399,7 @@ function stopCurrentShow() {
 
 async function tick() {
   if (restarting) return;
+  if (Date.now() < nextStartAllowedAt) return;
   const nowPlaying = await scheduler.getNowPlaying();
   if (!nowPlaying) return; // schedule not loaded yet
 
@@ -425,6 +437,8 @@ function getStatus() {
     currentShowIndex,
     currentShowName,
     lastError,
+    consecutiveFailures,
+    retryAfter: nextStartAllowedAt > Date.now() ? new Date(nextStartAllowedAt).toISOString() : null,
   };
 }
 
