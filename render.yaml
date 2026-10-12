@@ -26,6 +26,6 @@ services:
       - key: STREAM_PRESET
         value: ultrafast
       - key: VIDEO_BITRATE
-        value: 800k
+        value: 600k
       - key: AUDIO_BITRATE
-        value: 96k
+        value: 64k
