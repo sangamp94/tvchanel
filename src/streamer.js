@@ -253,7 +253,7 @@ async function startShow(nowPlaying) {
 
   // Logo fetching/filter preparation can take long enough to cross a show boundary.
   // Do not launch FFmpeg at the very end of a show, where -ss/-t can yield no packets.
-  const latest = scheduler.getNowPlaying();
+  const latest = await scheduler.getNowPlaying();
   if (!latest || latest.index !== nowPlaying.index || latest.remainingSeconds < 2) {
     setImmediate(() => tick().catch((e) => console.error("[streamer] tick error:", e.message)));
     return;
@@ -388,7 +388,7 @@ function stopCurrentShow() {
 
 async function tick() {
   if (restarting) return;
-  const nowPlaying = scheduler.getNowPlaying();
+  const nowPlaying = await scheduler.getNowPlaying();
   if (!nowPlaying) return; // schedule not loaded yet
 
   const needsSwitch = currentShowIndex === null || currentShowIndex !== nowPlaying.index;
