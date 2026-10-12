@@ -244,7 +244,9 @@ function getStatus() {
   return {
     lastFetchAt,
     lastFetchError,
-    loaded: !!cachedConfig,\n    episodeCount: cachedConfig ? cachedConfig.shows.length : 0,\n    durationProbesInFlight: [...durationRequests.values()].filter((x) => x.promise).length,
+    loaded: !!cachedConfig,
+    episodeCount: cachedConfig ? cachedConfig.shows.length : 0,
+    durationProbesInFlight: [...durationRequests.values()].filter((x) => x.promise).length,
   };
 }
 
@@ -274,7 +276,8 @@ async function startAutoRefresh() {
 module.exports = {
   refresh,
   getConfig,
-  getStatus,\n  ensureDuration,
+  getStatus,
+  ensureDuration,
   applyLogoOverrideOnly,
   startAutoRefresh,
 };
