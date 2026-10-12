@@ -4,6 +4,7 @@ const db = require("./db");
 let cachedConfig = null; // { channel_name, channel_logo, epoch, shows: [...], totalDuration }
 let lastFetchError = null;
 let lastFetchAt = null;
+let lastDurationProbeError = null;
 const durationRequests = new Map();
 
 function ffprobeDuration(videoUrl) {
@@ -210,8 +211,10 @@ async function ensureDuration(index) {
     const current = cachedConfig && cachedConfig.shows.find((s) => s.video_url === show.video_url);
     if (current) current.duration = duration;
     durationRequests.set(show.video_url, { duration, retryAfter: 0 });
+    lastDurationProbeError = null;
     return duration;
   }).catch((e) => {
+    lastDurationProbeError = `${show.name}: ${e.message}`;
     durationRequests.set(show.video_url, { error: e.message, retryAfter: Date.now() + 30000 });
     throw e;
   }).finally(() => {
@@ -247,6 +250,7 @@ function getStatus() {
     loaded: !!cachedConfig,
     episodeCount: cachedConfig ? cachedConfig.shows.length : 0,
     durationProbesInFlight: [...durationRequests.values()].filter((x) => x.promise).length,
+    lastDurationProbeError,
   };
 }
 
