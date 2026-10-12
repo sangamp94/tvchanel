@@ -356,13 +356,15 @@ async function startShow(nowPlaying) {
   proc.on("close", (code) => {
     if (currentProcess === proc) currentProcess = null;
     console.log(`[streamer] ffmpeg exited (show "${show.name}", code ${code})`);
-    if (code !== 0) {
+    if (code !== 0 && proc.signalCode === null) {
+      // Back off only for an unexpected FFmpeg exit. Intentional SIGTERM/SIGKILL
+      // during a scheduled show switch must not count as a source failure.
       consecutiveFailures += 1;
       const delaySeconds = Math.min(60, 5 * (2 ** Math.min(consecutiveFailures - 1, 4)));
       nextStartAllowedAt = Date.now() + delaySeconds * 1000;
       lastError = `FFmpeg exited with code ${code}; retrying in ${delaySeconds}s`;
       console.error(`[streamer] ${lastError}`);
-    } else {
+    } else if (code === 0) {
       consecutiveFailures = 0;
       nextStartAllowedAt = 0;
     }
