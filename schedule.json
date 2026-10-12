@@ -4,9 +4,9 @@
   "epoch": "2026-10-12T11:29:05.520Z",
   "shows": [
     {
-      "name": "Now Playing - Special Upload",
+      "name": "Professor Thompson",
       "logo": "",
-      "video_url": "https://archive.org/download/my-upload-2026/ia_upload_m2pc70oq.mkv"
+      "video_url": "https://archive.org/download/my-ypload/ia_upload_w8fhzz6u.mkv"
     },
     {
       "name": "Pokémon Season 1 - Episode 1",
@@ -413,5 +413,12 @@
       "logo": "",
       "video_url": "https://dn710608.ca.archive.org/0/items/pokemonseason1hindi/Pokemon_01_82.mp4"
     }
-  ]
+  ],
+  "pre_show": {
+    "name": "Now Playing - Special Upload",
+    "logo": "",
+    "video_url": "https://archive.org/download/my-upload-2026/ia_upload_m2pc70oq.mkv"
+  },
+  "start_at": "2026-10-12T12:30:00Z",
+  "timezone": "Asia/Kolkata"
 }
