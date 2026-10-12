@@ -22,7 +22,7 @@ router.get("/config", (req, res) => {
   });
 });
 
-router.get("/nowplaying", (req, res) => {
+router.get("/nowplaying", async (req, res) => {
   const now = await scheduler.getNowPlaying();
   if (!now) {
     return res.status(503).json({ error: "Schedule not loaded yet" });
