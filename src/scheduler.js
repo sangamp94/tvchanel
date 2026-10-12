@@ -41,9 +41,9 @@ async function getNowPlaying() {
   }
 
   let offsetSeconds = Math.max(0, (nowMs - activeStartedAt) / 1000);
-  while (offsetSeconds >= currentDuration && activeIndex < config.shows.length - 1) {
+  while (offsetSeconds >= currentDuration) {
     activeStartedAt += currentDuration * 1000;
-    activeIndex += 1;
+    activeIndex = (activeIndex + 1) % config.shows.length;
     offsetSeconds = Math.max(0, (nowMs - activeStartedAt) / 1000);
     try {
       currentDuration = await scheduleSource.ensureDuration(activeIndex);
@@ -53,8 +53,8 @@ async function getNowPlaying() {
     }
   }
 
-  const nextIndex = activeIndex + 1;
-  if (nextIndex < config.shows.length) {
+  const nextIndex = (activeIndex + 1) % config.shows.length;
+  if (config.shows.length > 1) {
     scheduleSource.ensureDuration(nextIndex).catch((e) => {
       console.warn(`[scheduler] Next episode duration not ready for "${config.shows[nextIndex].name}": ${e.message}`);
     });
