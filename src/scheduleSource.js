@@ -177,7 +177,12 @@ async function refresh() {
         duration,
       });
     } catch (e) {
-      console.warn(`[schedule] Skipping "${String(show.name).slice(0, 80)}": ${e.message}`);
+      // Never publish a partial playlist: removing even one episode changes
+      // totalDuration and shifts every wall-clock episode boundary. Keep the
+      // last known-good config and retry this refresh instead.
+      const message = `Could not resolve duration for "${String(show.name).slice(0, 80)}"; refusing to publish an incomplete schedule: ${e.message}`;
+      console.error(`[schedule] ${message}`);
+      throw new Error(message);
     }
   }
 
