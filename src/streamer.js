@@ -100,7 +100,7 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
   let inputIndex = 1; // 0 is the main video
 
   let lastVideoLabel = "bg";
-  const fps = Math.max(15, Math.min(30, Number(process.env.STREAM_FPS || 25)));
+  const fps = Math.max(15, Math.min(30, Number(process.env.STREAM_FPS || 20)));
   filterParts.push(
     `[0:v]scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},fps=${fps},setsar=1[${lastVideoLabel}]`
   );
@@ -238,8 +238,8 @@ async function buildFilterGraph({ channelLogoUrl, showLogoUrl, showName, width, 
 async function startShow(nowPlaying) {
   const { show, offsetSeconds, remainingSeconds, channel_logo } = nowPlaying;
 
-  const width = Number(process.env.STREAM_WIDTH || 854);
-  const height = Number(process.env.STREAM_HEIGHT || 480);
+  const width = Number(process.env.STREAM_WIDTH || 640);
+  const height = Number(process.env.STREAM_HEIGHT || 360);
   const preset = process.env.STREAM_PRESET || "ultrafast";
   const vBitrate = process.env.VIDEO_BITRATE || "800k";
   const aBitrate = process.env.AUDIO_BITRATE || "96k";
@@ -325,7 +325,7 @@ async function startShow(nowPlaying) {
     // Keep deletion under cleanupOrphanSegments() rather than letting FFmpeg
     // race the cleanup sweep or remove segments still requested by HLS clients.
     "-hls_flags",
-    "append_list+discont_start+omit_endlist",
+    "append_list+discont_start+omit_endlist+temp_file",
     "-hls_segment_filename",
     path.join(HLS_DIR, "seg_%d.ts"),
     path.join(HLS_DIR, "stream.m3u8"),
