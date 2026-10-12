@@ -16,11 +16,11 @@ services:
       - key: SCHEDULE_REFRESH_SECONDS
         value: "60"
       - key: STREAM_WIDTH
-        value: "854"
+        value: "640"
       - key: STREAM_HEIGHT
-        value: "480"
+        value: "360"
       - key: STREAM_FPS
-        value: "25"
+        value: "20"
       - key: STREAM_THREADS
         value: "2"
       - key: STREAM_PRESET
