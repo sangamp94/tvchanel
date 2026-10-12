@@ -243,7 +243,7 @@ async function startShow(nowPlaying) {
   const preset = process.env.STREAM_PRESET || "ultrafast";
   const vBitrate = process.env.VIDEO_BITRATE || "800k";
   const aBitrate = process.env.AUDIO_BITRATE || "96k";
-  const fps = Math.max(15, Math.min(30, Number(process.env.STREAM_FPS || 25)));
+  const fps = Math.max(15, Math.min(30, Number(process.env.STREAM_FPS || 20)));
 
   const { filterComplex, extraInputs } = await buildFilterGraph({
     channelLogoUrl: channel_logo,
@@ -315,11 +315,11 @@ async function startShow(nowPlaying) {
     "-f",
     "hls",
     "-hls_time",
-    "4",
+    "2",
     // Retain a larger rolling window so IPTV players can buffer across short
     // encoder restarts at episode boundaries.
     "-hls_list_size",
-    "12",
+    "5",
     "-start_number",
     String(nextSegmentNumber),
     // Keep deletion under cleanupOrphanSegments() rather than letting FFmpeg
