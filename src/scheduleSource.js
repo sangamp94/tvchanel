@@ -200,6 +200,10 @@ async function ensureDuration(index) {
 
   const now = Date.now();
   const existing = durationRequests.get(show.video_url);
+  if (existing && Number.isFinite(existing.duration) && existing.duration > 0) {
+    show.duration = existing.duration;
+    return existing.duration;
+  }
   if (existing && existing.promise) return existing.promise;
   if (existing && existing.retryAfter > now) throw new Error(existing.error || "Duration probe is cooling down");
 
