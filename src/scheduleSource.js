@@ -3,7 +3,7 @@ const db = require("./db");
 
 let cachedConfig = null; // { channel_name, channel_logo, epoch, shows: [...], totalDuration }
 let lastFetchError = null;
-let lastFetchAt = null;
+let lastFetchAt = null;\nconst durationRequests = new Map();
 
 function ffprobeDuration(videoUrl) {
   return new Promise((resolve, reject) => {
@@ -100,120 +100,59 @@ async function fetchRawJson(url) {
 }
 
 async function refresh() {
-  // Use the repository schedule by default so a missing Render env var does not leave the channel empty.
-  // Set SCHEDULE_SOURCE_URL in Render to override this default when needed.
   const sourceUrl = process.env.SCHEDULE_SOURCE_URL ||
     "https://raw.githubusercontent.com/sangamp94/tvchanel/main/schedule.json";
-
   const raw = await fetchRawJson(sourceUrl);
-
   if (!Array.isArray(raw.shows) || raw.shows.length === 0) {
     throw new Error('Schedule JSON must contain a non-empty "shows" array.');
   }
 
-  // Only publish the provisional config on the very first load. Replacing an
-  // already-working schedule with this one-show placeholder on every 60s refresh
-  // makes the streamer jump to Episode 1, then jump back to the calculated episode.
-  // Keep the last good config live while background refresh/probing is in progress.
-  if (!cachedConfig && raw.pre_show && raw.pre_show.name && raw.pre_show.video_url) {
-    try {
-      const preUrl = new URL(raw.pre_show.video_url);
-      if (["http:", "https:"].includes(preUrl.protocol)) {
-        const startAt = raw.start_at && Number.isFinite(new Date(raw.start_at).getTime())
-          ? new Date(raw.start_at).getTime()
-          : Date.now() + 60 * 60 * 1000;
-        cachedConfig = {
-          channel_name: raw.channel_name || "My Channel",
-          channel_logo: raw.channel_logo || null,
-          channel_logo_source: "schedule_json",
-          epoch: Date.now(),
-          shows: [{
-            name: String(raw.shows[0].name || "Main playlist").slice(0, 200),
-            logo: raw.shows[0].logo ? String(raw.shows[0].logo) : null,
-            video_url: String(raw.shows[0].video_url),
-            duration: 1,
-          }],
-          totalDuration: 1,
-          daily_start_time: null,
-          start_at: startAt,
-          timezone: "Asia/Kolkata",
-          pre_show: {
-            name: String(raw.pre_show.name).slice(0, 200),
-            logo: raw.pre_show.logo ? String(raw.pre_show.logo) : null,
-            video_url: preUrl.href,
-            duration: 1,
-          },
-          loading: true,
-        };
-        console.log(`[schedule] Pre-show "${cachedConfig.pre_show.name}" is available while episode durations load.`);
-      }
-    } catch (e) {
-      console.warn("[schedule] Could not prepare pre-show config:", e.message);
-    }
-  }
-
+  // Load metadata only. Do NOT probe all episode URLs here. Duration probing
+  // is lazy and limited to the active episode plus one next-episode prefetch.
   const shows = [];
-  for (const show of raw.shows) {
-    if (!show.name || !show.video_url) {
+  for (const item of raw.shows) {
+    if (!item.name || !item.video_url) {
       console.warn("[schedule] Skipping invalid show entry (missing name/video_url).");
       continue;
     }
     let source;
-    try { source = new URL(show.video_url); } catch { 
-      console.warn("[schedule] Skipping show with invalid video URL:", show.name);
+    try { source = new URL(item.video_url); } catch {
+      console.warn("[schedule] Skipping show with invalid video URL:", item.name);
       continue;
     }
     if (!["http:", "https:"].includes(source.protocol)) {
-      console.warn("[schedule] Skipping non-HTTP(S) video URL:", show.name);
+      console.warn("[schedule] Skipping non-HTTP(S) video URL:", item.name);
       continue;
     }
-    try {
-      const duration = await resolveDuration(show);
-      if (!Number.isFinite(duration) || duration <= 0) throw new Error("Invalid duration");
-      shows.push({
-        name: String(show.name).slice(0, 200),
-        logo: show.logo ? String(show.logo) : null,
-        video_url: source.href,
-        duration,
-      });
-    } catch (e) {
-      // Never publish a partial playlist: removing even one episode changes
-      // totalDuration and shifts every wall-clock episode boundary. Keep the
-      // last known-good config and retry this refresh instead.
-      const message = `Could not resolve duration for "${String(show.name).slice(0, 80)}"; refusing to publish an incomplete schedule: ${e.message}`;
-      console.error(`[schedule] ${message}`);
-      throw new Error(message);
-    }
+    const suppliedDuration = Number(item.duration);
+    shows.push({
+      name: String(item.name).slice(0, 200),
+      logo: item.logo ? String(item.logo) : null,
+      video_url: source.href,
+      duration: Number.isFinite(suppliedDuration) && suppliedDuration > 0 ? Math.round(suppliedDuration) : null,
+    });
   }
+  if (shows.length === 0) throw new Error("No valid shows found after validation.");
 
-  if (shows.length === 0) {
-    throw new Error("No valid shows found after validation.");
-  }
-
-  const totalDuration = shows.reduce((sum, s) => sum + s.duration, 0);
-  const dailyStartTime = /^([01]\\d|2[0-3]):([0-5]\\d)$/.test(String(raw.daily_start_time || ""))
-    ? String(raw.daily_start_time)
-    : null;
   let preShow = null;
   if (raw.pre_show && raw.pre_show.name && raw.pre_show.video_url) {
     try {
-      const preShowUrl = new URL(raw.pre_show.video_url);
-      if (["http:", "https:"].includes(preShowUrl.protocol)) {
+      const u = new URL(raw.pre_show.video_url);
+      if (["http:", "https:"].includes(u.protocol)) {
         preShow = {
           name: String(raw.pre_show.name).slice(0, 200),
           logo: raw.pre_show.logo ? String(raw.pre_show.logo) : null,
-          video_url: preShowUrl.href,
-          duration: 1,
+          video_url: u.href,
+          duration: null,
         };
       }
     } catch (e) {
       console.warn("[schedule] Ignoring invalid pre_show URL:", e.message);
     }
   }
+
   const parsedEpoch = raw.epoch ? new Date(raw.epoch) : new Date(0);
   const epochDate = Number.isFinite(parsedEpoch.getTime()) ? parsedEpoch : new Date(0);
-
-  // Dashboard-set logo overrides the JSON's channel_logo, if present.
   let override = null;
   try {
     override = await db.getChannelOverride();
@@ -221,25 +160,64 @@ async function refresh() {
     console.warn("[schedule] Channel override DB unavailable; using schedule JSON:", e.message);
   }
 
+  // Preserve the previous playlist's order/progress where possible. A routine
+  // refresh must not reset playback to Episode 1.
+  const previous = cachedConfig;
   cachedConfig = {
     channel_name: (override && override.channel_name) || raw.channel_name || "My Channel",
     channel_logo: (override && override.logo_url) || raw.channel_logo || null,
     channel_logo_source: override && override.logo_url ? "dashboard" : "schedule_json",
     epoch: epochDate.getTime(),
     shows,
-    totalDuration,
-    daily_start_time: dailyStartTime,
+    totalDuration: null,
+    daily_start_time: null,
     start_at: raw.start_at && Number.isFinite(new Date(raw.start_at).getTime()) ? new Date(raw.start_at).getTime() : null,
     timezone: "Asia/Kolkata",
     pre_show: preShow,
     loading: false,
   };
+
+  // If the schedule URLs/order are unchanged, carry forward durations already
+  // resolved in memory to avoid repeating probes on each 60-second refresh.
+  if (previous && Array.isArray(previous.shows)) {
+    const oldByUrl = new Map(previous.shows.map((s) => [s.video_url, s.duration]));
+    for (const show of cachedConfig.shows) {
+      if (!show.duration && oldByUrl.has(show.video_url)) show.duration = oldByUrl.get(show.video_url);
+    }
+  }
+
   lastFetchError = null;
   lastFetchAt = new Date();
-  console.log(
-    `[schedule] Loaded ${shows.length} show(s), total cycle length ${totalDuration}s`
-  );
+  console.log(`[schedule] Loaded ${shows.length} episode entries (durations will be fetched lazily: current + next only).`);
   return cachedConfig;
+}
+
+async function ensureDuration(index) {
+  const config = cachedConfig;
+  if (!config || !config.shows[index]) throw new Error(`Episode index ${index} is not in the schedule`);
+  const show = config.shows[index];
+  if (Number.isFinite(show.duration) && show.duration > 0) return show.duration;
+
+  const now = Date.now();
+  const existing = durationRequests.get(show.video_url);
+  if (existing && existing.promise) return existing.promise;
+  if (existing && existing.retryAfter > now) throw new Error(existing.error || "Duration probe is cooling down");
+
+  const promise = resolveDuration(show).then((duration) => {
+    // Only update the currently loaded matching URL; refresh may have changed the schedule.
+    const current = cachedConfig && cachedConfig.shows.find((s) => s.video_url === show.video_url);
+    if (current) current.duration = duration;
+    durationRequests.set(show.video_url, { duration, retryAfter: 0 });
+    return duration;
+  }).catch((e) => {
+    durationRequests.set(show.video_url, { error: e.message, retryAfter: Date.now() + 30000 });
+    throw e;
+  }).finally(() => {
+    const entry = durationRequests.get(show.video_url);
+    if (entry) delete entry.promise;
+  });
+  durationRequests.set(show.video_url, { promise, retryAfter: 0 });
+  return promise;
 }
 
 async function applyLogoOverrideOnly() {
@@ -264,7 +242,7 @@ function getStatus() {
   return {
     lastFetchAt,
     lastFetchError,
-    loaded: !!cachedConfig,
+    loaded: !!cachedConfig,\n    episodeCount: cachedConfig ? cachedConfig.shows.length : 0,\n    durationProbesInFlight: [...durationRequests.values()].filter((x) => x.promise).length,
   };
 }
 
@@ -294,7 +272,7 @@ async function startAutoRefresh() {
 module.exports = {
   refresh,
   getConfig,
-  getStatus,
+  getStatus,\n  ensureDuration,
   applyLogoOverrideOnly,
   startAutoRefresh,
 };
