@@ -112,17 +112,14 @@ async function refresh() {
   const shows = [];
   for (const item of raw.shows) {
     if (!item.name || !item.video_url) {
-      console.warn("[schedule] Skipping invalid show entry (missing name/video_url).");
-      continue;
+      throw new Error("Invalid schedule entry: every show needs both name and video_url. Keeping the last good schedule.");
     }
     let source;
     try { source = new URL(item.video_url); } catch {
-      console.warn("[schedule] Skipping show with invalid video URL:", item.name);
-      continue;
+      throw new Error(`Invalid video URL for "${String(item.name).slice(0, 80)}". Keeping the last good schedule.`);
     }
     if (!["http:", "https:"].includes(source.protocol)) {
-      console.warn("[schedule] Skipping non-HTTP(S) video URL:", item.name);
-      continue;
+      throw new Error(`Non-HTTP(S) video URL for "${String(item.name).slice(0, 80)}". Keeping the last good schedule.`);
     }
     const suppliedDuration = Number(item.duration);
     shows.push({
