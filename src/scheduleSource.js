@@ -3,7 +3,8 @@ const db = require("./db");
 
 let cachedConfig = null; // { channel_name, channel_logo, epoch, shows: [...], totalDuration }
 let lastFetchError = null;
-let lastFetchAt = null;\nconst durationRequests = new Map();
+let lastFetchAt = null;
+const durationRequests = new Map();
 
 function ffprobeDuration(videoUrl) {
   return new Promise((resolve, reject) => {
