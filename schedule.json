@@ -1,13 +1,8 @@
 {
   "channel_name": "Sangam TV",
   "channel_logo": "https://raw.githubusercontent.com/sangamp94/tvchanel/main/public/brand/image.png",
-  "epoch": "2026-10-12T15:25:21.923Z",
+  "epoch": "2026-10-13T05:06:47.772Z",
   "shows": [
-    {
-      "name": "Bablu Dablu",
-      "logo": "",
-      "video_url": "https://usercontent.smvd.xyz/renders/2026-10-12T15-00-00.000Z/dmvid_x7t9dp9_hls-720_x7t9dp9_hls-720_1280x720/1aa76ab0-f279-4627-b031-b5b005cfd3ba.mp4"
-    },
     {
       "name": "Professor Thompson",
       "logo": "",
