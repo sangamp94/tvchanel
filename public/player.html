@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#100c0d">
+  <title>Maha Cartoon TV — Live Player</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+  <style>
+    :root{color-scheme:dark;--bg:#100c0d;--panel:#1c1517;--line:#39252b;--red:#e11d48;--text:#f8eef0;--muted:#b9a6ab}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#32121d 0%,var(--bg) 60%);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh;padding:24px}
+    main{max-width:1000px;margin:0 auto}.brand{display:flex;align-items:center;gap:12px;margin:8px 0 24px}.mark{width:42px;height:42px;border:1px solid var(--red);border-radius:12px;display:grid;place-items:center;color:var(--red);font-weight:900}.eyebrow{color:#fb7185;font-size:11px;letter-spacing:.2em;text-transform:uppercase}h1{font-size:clamp(24px,4vw,36px);margin:2px 0}p{color:var(--muted);line-height:1.5}
+    .panel{background:rgba(28,21,23,.94);border:1px solid var(--line);border-radius:16px;padding:18px;margin:18px 0}.video-wrap{position:relative;background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9}.video-wrap video{width:100%;height:100%;display:block;background:#000}.status{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}.dot{width:8px;height:8px;border-radius:50%;background:#f59e0b}.dot.live{background:#22c55e;box-shadow:0 0 10px #22c55e}
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 8px}input{width:100%;min-width:0;padding:12px;border:1px solid var(--line);border-radius:10px;background:#100c0d;color:var(--text);font:inherit}button{border:1px solid #fb365e;background:var(--red);color:white;padding:11px 16px;border-radius:10px;font:600 14px system-ui;cursor:pointer}button.secondary{background:transparent;border-color:var(--line);color:var(--text)}.controls{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:end}.hint{font-size:12px;margin-bottom:0}.error{color:#fda4af;white-space:pre-wrap}.footer{font-size:12px;text-align:center;color:#806c72;margin:24px 0}
+    @media(max-width:650px){body{padding:14px}.controls{grid-template-columns:1fr 1fr}.controls label{grid-column:1/-1}.controls input{grid-column:1/-1}.controls button{width:100%}.panel{padding:12px}}
+  </style>
+</head>
+<body>
+<main>
+  <header class="brand">
+    <div class="mark">M</div>
+    <div><div class="eyebrow">Live broadcast</div><h1>Maha Cartoon TV</h1></div>
+  </header>
+  <section class="panel">
+    <div class="status"><span id="dot" class="dot"></span><span id="status">Stream not connected</span></div>
+    <div class="video-wrap"><video id="video" controls playsinline></video></div>
+  </section>
+  <section class="panel">
+    <div class="controls">
+      <label for="streamUrl">Worker URL or full HLS playlist URL
+        <input id="streamUrl" type="url" placeholder="https://your-worker.example.com or https://.../live/stream.m3u8" autocomplete="url">
+      </label>
+      <button id="play">Connect / Play</button>
+      <button id="stop" class="secondary">Stop</button>
+    </div>
+    <p class="hint">Enter your worker's public HTTPS URL. The player will use /live/stream.m3u8 automatically if you enter only the worker origin. The stream worker must allow cross-origin HLS requests.</p>
+    <p id="message" class="hint error" role="status"></p>
+  </section>
+  <p class="footer">Stream availability depends on the separate FFmpeg worker and its hosting provider.</p>
+</main>
+<script>
+(() => {
+  const video = document.getElementById("video");
+  const input = document.getElementById("streamUrl");
+  const status = document.getElementById("status");
+  const dot = document.getElementById("dot");
+  const message = document.getElementById("message");
+  let hls = null;
+
+  const params = new URLSearchParams(location.search);
+  input.value = params.get("stream") || localStorage.getItem("tvWorkerUrl") || "";
+
+  function setStatus(text, live = false) {
+    status.textContent = text;
+    dot.classList.toggle("live", live);
+  }
+  function normalizeUrl(value) {
+    const parsed = new URL(value.trim());
+    if (!["https:", "http:"].includes(parsed.protocol)) throw new Error("Use an HTTP or HTTPS stream URL.");
+    if (!parsed.pathname.toLowerCase().endsWith(".m3u8")) {
+      parsed.pathname = parsed.pathname.replace(/\/+$/, "") + "/live/stream.m3u8";
+      parsed.search = "";
+    }
+    return parsed.toString();
+  }
+  function stop() {
+    if (hls) { hls.destroy(); hls = null; }
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+    setStatus("Stream stopped");
+    message.textContent = "";
+  }
+  async function play() {
+    message.textContent = "";
+    let url;
+    try { url = normalizeUrl(input.value); }
+    catch (e) { message.textContent = e.message || "Enter a valid worker URL."; return; }
+    localStorage.setItem("tvWorkerUrl", input.value.trim());
+    setStatus("Connecting…");
+    if (hls) { hls.destroy(); hls = null; }
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = url;
+      video.play().catch(() => {});
+      setStatus("Playlist loaded — press play if needed");
+      return;
+    }
+    if (window.Hls && Hls.isSupported()) {
+      hls = new Hls({ enableWorker: true, lowLatencyMode: false, backBufferLength: 30 });
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        setStatus("Connected", true);
+        video.play().catch(() => {});
+      });
+      hls.on(Hls.Events.ERROR, (_event, data) => {
+        if (data.fatal) {
+          setStatus("Playback error");
+          message.textContent = "HLS error: " + (data.details || data.type || "unknown") + ". Check the worker URL, CORS headers, and whether /live/stream.m3u8 is reachable.";
+          hls.destroy(); hls = null;
+        }
+      });
+    } else {
+      message.textContent = "This browser does not support HLS playback.";
+      setStatus("Unsupported browser");
+    }
+  }
+  document.getElementById("play").addEventListener("click", play);
+  document.getElementById("stop").addEventListener("click", stop);
+  video.addEventListener("playing", () => setStatus("LIVE", true));
+  video.addEventListener("waiting", () => setStatus("Buffering…"));
+  video.addEventListener("error", () => {
+    if (video.error) message.textContent = "Video error code: " + video.error.code + ". Check the HLS URL and source availability.";
+  });
+  if (input.value) play();
+})();
+</script>
+</body>
+</html>
