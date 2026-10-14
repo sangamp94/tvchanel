@@ -162,6 +162,12 @@ To store the schedule in Neon instead:
 
 This does **not** make Vercel a persistent FFmpeg worker. Keep the Node.js/FFmpeg process on a host that explicitly permits long-running processes. The worker itself serves `/live/stream.m3u8` and its local HLS segments; no separate object storage is required for the initial version.
 
+## 7B. Static Vercel player
+
+A lightweight HLS player is included at `public/player.html`. After deploying the `public` directory as static output on Vercel, open `/player` and enter the public HTTPS URL of the separate FFmpeg worker. The player remembers the URL in that browser only. It does not run FFmpeg and it does not replace the worker.
+
+See `docs/DEPLOYMENT_BLUEPRINT.md` for the Neon schedule mode, Docker Compose worker setup, and deployment validation checklist.
+
 ## 8. Using it
 
 - **Watch in VLC (or any player):** Media > Open Network Stream >
