@@ -133,7 +133,8 @@ Either way, first build takes a few minutes (installing ffmpeg + node modules).
 | `DATABASE_URL` | Yes | Neon Postgres connection string |
 | `ADMIN_USER` | No (default `admin`) | Dashboard login username |
 | `ADMIN_PASSWORD` | Yes | Dashboard login password |
-| `SCHEDULE_SOURCE_URL` | Yes | Public URL to your schedule JSON |
+| `SCHEDULE_SOURCE_URL` | Yes for URL mode / first database bootstrap | Public URL to your schedule JSON |
+| `SCHEDULE_SOURCE_MODE` | No (default `url`) | `url` or `database`; database mode reads Neon `channel_schedule` |
 | `SCHEDULE_REFRESH_SECONDS` | No (default 60) | How often to re-fetch the schedule JSON |
 | `STREAM_WIDTH` / `STREAM_HEIGHT` | No (default 854x480) | Output resolution — lower if you see lag |
 | `STREAM_FPS` | No (default 25) | Output frame rate, clamped to 15–30 |
@@ -144,6 +145,28 @@ Either way, first build takes a few minutes (installing ffmpeg + node modules).
 | `AUDIO_BITRATE` | No (default `96k`) | Audio bitrate |
 
 ---
+
+## 7A. Use Neon as the schedule database (optional)
+
+The default schedule source remains a public JSON URL so existing deployments keep working.
+To store the schedule in Neon instead:
+
+1. Set `DATABASE_URL` to your Neon pooled or direct PostgreSQL connection string.
+2. Set `SCHEDULE_SOURCE_MODE=database`.
+3. Keep `SCHEDULE_SOURCE_URL` configured during the first boot. If Neon has no schedule row yet, the worker imports that JSON into the `channel_schedule` table.
+4. Restart the worker. After bootstrapping, Neon is the schedule source of truth.
+5. To import a different JSON schedule manually, run:
+   `node scripts/import-schedule-to-neon.js path/to/schedule.json`
+   with `DATABASE_URL` available in the shell. The script requires `npm install` first.
+6. The authenticated admin API also supports `PUT /api/admin/schedule` with a schedule JSON body while database mode is enabled.
+
+This does **not** make Vercel a persistent FFmpeg worker. Keep the Node.js/FFmpeg process on a host that explicitly permits long-running processes. The worker itself serves `/live/stream.m3u8` and its local HLS segments; no separate object storage is required for the initial version.
+
+## 7B. Static Vercel player
+
+A lightweight HLS player is included at `public/player.html`. After deploying the `public` directory as static output on Vercel, open `/player` and enter the public HTTPS URL of the separate FFmpeg worker. The player remembers the URL in that browser only. It does not run FFmpeg and it does not replace the worker.
+
+See `docs/DEPLOYMENT_BLUEPRINT.md` for the Neon schedule mode, Docker Compose worker setup, and deployment validation checklist.
 
 ## 8. Using it
 

@@ -104,7 +104,20 @@ async function fetchRawJson(url) {
 async function refresh() {
   const sourceUrl = process.env.SCHEDULE_SOURCE_URL ||
     "https://raw.githubusercontent.com/sangamp94/tvchanel/main/schedule.json";
-  const raw = await fetchRawJson(sourceUrl);
+  const sourceMode = String(process.env.SCHEDULE_SOURCE_MODE || "url").toLowerCase();
+  let raw;
+
+  if (sourceMode === "database") {
+    raw = await db.getScheduleConfig();
+    if (!raw) {
+      // Bootstrap Neon from the configured JSON source on first run.
+      raw = await fetchRawJson(sourceUrl);
+      await db.setScheduleConfig(raw);
+      console.log("[schedule] Seeded Neon channel_schedule from SCHEDULE_SOURCE_URL");
+    }
+  } else {
+    raw = await fetchRawJson(sourceUrl);
+  }
   if (!Array.isArray(raw.shows) || raw.shows.length === 0) {
     throw new Error('Schedule JSON must contain a non-empty "shows" array.');
   }

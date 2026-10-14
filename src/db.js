@@ -38,6 +38,15 @@ async function initSchema() {
     );
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS channel_schedule (
+      id INTEGER PRIMARY KEY DEFAULT 1,
+      payload JSONB NOT NULL,
+      updated_at TIMESTAMPTZ DEFAULT now(),
+      CONSTRAINT channel_schedule_single_row CHECK (id = 1)
+    );
+  `);
+
   console.log("[db] Schema ready");
 }
 
@@ -92,9 +101,52 @@ async function cacheDuration(videoUrl, durationSeconds) {
   );
 }
 
+async function getScheduleConfig() {
+  if (!pool) return null;
+  const res = await pool.query(
+    "SELECT payload FROM channel_schedule WHERE id = 1"
+  );
+  return res.rows[0] ? res.rows[0].payload : null;
+}
+
+async function setScheduleConfig(payload) {
+  if (!pool) {
+    throw new Error("DATABASE_URL is not configured; cannot save the schedule.");
+  }
+  if (!payload || !Array.isArray(payload.shows) || payload.shows.length === 0) {
+    throw new Error('Schedule must contain a non-empty "shows" array.');
+  }
+  for (const show of payload.shows) {
+    if (!show || !show.name || !show.video_url) {
+      throw new Error("Every schedule show needs both name and video_url.");
+    }
+    let source;
+    try {
+      source = new URL(show.video_url);
+    } catch {
+      throw new Error(`Invalid video URL for "${String(show.name).slice(0, 80)}".`);
+    }
+    if (!["http:", "https:"].includes(source.protocol)) {
+      throw new Error(`Video URL for "${String(show.name).slice(0, 80)}" must use HTTP or HTTPS.`);
+    }
+  }
+
+  await pool.query(
+    `INSERT INTO channel_schedule (id, payload, updated_at)
+     VALUES (1, $1::jsonb, now())
+     ON CONFLICT (id) DO UPDATE SET
+       payload = EXCLUDED.payload,
+       updated_at = now()`,
+    [JSON.stringify(payload)]
+  );
+  return getScheduleConfig();
+}
+
 module.exports = {
   pool,
   initSchema,
+  getScheduleConfig,
+  setScheduleConfig,
   getChannelOverride,
   setChannelOverride,
   getCachedDuration,

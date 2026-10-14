@@ -1,0 +1,17 @@
+services:
+  tv-channel-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tv-channel-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: "10000"
+    ports:
+      - "${PORT:-10000}:10000"
+    volumes:
+      - ./public/hls:/app/public/hls
+      - ./cache:/app/cache
