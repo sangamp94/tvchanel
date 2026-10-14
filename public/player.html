@@ -48,7 +48,7 @@
   let hls = null;
 
   const params = new URLSearchParams(location.search);
-  input.value = params.get("stream") || localStorage.getItem("tvWorkerUrl") || "";
+  input.value = params.get("stream") || localStorage.getItem("tvWorkerUrl") || "https://tv-channel-server.onrender.com";
 
   function setStatus(text, live = false) {
     status.textContent = text;
