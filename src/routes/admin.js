@@ -27,6 +27,26 @@ router.post("/schedule/refresh", async (req, res) => {
   }
 });
 
+router.put("/schedule", async (req, res) => {
+  if (String(process.env.SCHEDULE_SOURCE_MODE || "url").toLowerCase() !== "database") {
+    return res.status(409).json({
+      error: 'Set SCHEDULE_SOURCE_MODE=database before editing the schedule in Neon.',
+    });
+  }
+  try {
+    const schedule = req.body && req.body.schedule ? req.body.schedule : req.body;
+    const saved = await db.setScheduleConfig(schedule);
+    await scheduleSource.refresh();
+    res.json({
+      ok: true,
+      shows: saved.shows.length,
+      updated_at: new Date().toISOString(),
+    });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 router.get("/whoami", (req, res) => {
   res.json({ ok: true });
 });
