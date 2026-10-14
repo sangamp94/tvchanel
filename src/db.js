@@ -120,6 +120,15 @@ async function setScheduleConfig(payload) {
     if (!show || !show.name || !show.video_url) {
       throw new Error("Every schedule show needs both name and video_url.");
     }
+    let source;
+    try {
+      source = new URL(show.video_url);
+    } catch {
+      throw new Error(`Invalid video URL for "${String(show.name).slice(0, 80)}".`);
+    }
+    if (!["http:", "https:"].includes(source.protocol)) {
+      throw new Error(`Video URL for "${String(show.name).slice(0, 80)}" must use HTTP or HTTPS.`);
+    }
   }
 
   await pool.query(
