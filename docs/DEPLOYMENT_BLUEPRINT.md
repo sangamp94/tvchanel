@@ -66,9 +66,13 @@ The host must permit persistent processes, outbound source downloads, inbound HT
 
 Use Vercel for the web player/front-end and lightweight APIs only:
 
-- Set a public `WORKER_PUBLIC_URL` in the frontend deployment, pointing to the worker's HTTPS origin.
-- The player should load `${WORKER_PUBLIC_URL}/live/stream.m3u8`.
-- Do not expose `DATABASE_URL` or `ADMIN_PASSWORD) to browser code.
+1. Import this repository as a separate Vercel project after the changes are merged to the branch you want to deploy.
+2. The included `vercel.json` uses the `public` directory as static output. Open `/player` (or `/player.html`) after deployment.
+3. In the player, enter the worker's public HTTPS origin. The player will load `/live/stream.m3u8` automatically. You can also pass a full playlist URL in the `stream` query parameter.
+4. The player URL is not the stream origin: the Linux worker must already be running and reachable.
+
+- The player should load `${WORKER_PUBLIC_URL}/live/stream.m3u8` when a frontend integration supplies that variable.
+- Do not expose `DATABASE_URL` or `ADMIN_PASSWORD` to browser code.
 - If the Vercel UI calls worker APIs cross-origin, configure a strict allowlist for the deployed Vercel domain on the worker; do not enable unrestricted authenticated admin CORS.
 - Do not deploy this worker's `src/server.js` as a Vercel Function expecting it to maintain FFmpeg or local HLS files.
 
